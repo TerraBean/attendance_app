@@ -1,4 +1,5 @@
 import 'package:attendance_app/screens/home_screen.dart';
+import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/services/radius_service.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomeScreen(),
+        home: LoginPage(),
       ),
     );
   }

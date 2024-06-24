@@ -1,4 +1,5 @@
 
+import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/services/user_api.dart';
 import 'package:flutter/material.dart';
 class LoginPage extends StatefulWidget {
@@ -13,11 +14,18 @@ class _LoginPageState extends State<LoginPage> {
   String _password = '';
   String _loginMessage = '';
 
-  Future<void> _handleLogin() async {
+    Future<void> _handleLogin() async {
     try {
       final loginResponse = await UserApi.loginUser(_username, _password);
       setState(() {
         _loginMessage = loginResponse.message;
+        if (_loginMessage == 'Login was a successful') {
+          // Navigate to HomeScreen if login successful
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        }
       });
     } on Exception catch (error) {
       setState(() {

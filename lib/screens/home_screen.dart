@@ -4,17 +4,41 @@ import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/widgets/center_location_display.dart';
 import 'package:attendance_app/widgets/clock_in_button.dart';
 import 'package:attendance_app/widgets/location_display.dart';
+import 'package:attendance_app/widgets/logout_confirmation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String username;
+  final String userId;
+  const HomeScreen({super.key, required this.username, required this.userId});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late LocationService _locationService;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _locationService = Provider.of<LocationService>(context, listen: false);
+    
+  }
+
+  void onConfirmLogout() {
+  // Navigate to LoginPage and remove all routes before it
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => LoginPage()),
+    (route) => false, // Remove all routes until the root route
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   break;
                 case 'logout':
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        LogoutConfirmationDialog(
+                          onConfirmLogout: onConfirmLogout, // Pass the function
+                        ),
                   );
                   break;
               }
@@ -69,15 +96,19 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text('Welcome, ${widget.username}!'),
+            const SizedBox(height: 20),
+            Text('Your ID is: ${widget.userId}'),
+            const SizedBox(height: 20),
             LocationDisplay(),
             CenterLocationDisplay(),
-            ClockInButton(),
+            ClockInButton(userId: widget.userId,),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Provider.of<LocationService>(context, listen: false).setCenterLocation();
+          _locationService.setCenterLocation();
         },
         child: const Icon(Icons.my_location),
       ),

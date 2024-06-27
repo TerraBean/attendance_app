@@ -13,17 +13,20 @@ class _LoginPageState extends State<LoginPage> {
   String _username = '';
   String _password = '';
   String _loginMessage = '';
+  String _userId = '';
+
 
     Future<void> _handleLogin() async {
     try {
       final loginResponse = await UserApi.loginUser(_username, _password);
       setState(() {
         _loginMessage = loginResponse.message;
+        _userId = loginResponse.userId;
         if (_loginMessage == 'Login was a successful') {
           // Navigate to HomeScreen if login successful
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
+            MaterialPageRoute(builder: (context) => HomeScreen(username: _username, userId: _userId)),
           );
         }
       });

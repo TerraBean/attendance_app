@@ -32,10 +32,10 @@ class UserOnline{
 
 class LoginResponse {
   final String message;
-  final int? userId;
+  final String userId;
   final Map<String, dynamic>? user; // Assuming user object structure
 
-  LoginResponse({required this.message, this.userId, this.user});
+  LoginResponse({required this.message,required this.userId, this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(

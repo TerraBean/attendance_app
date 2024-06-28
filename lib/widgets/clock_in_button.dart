@@ -30,12 +30,24 @@ class ClockInButton extends StatelessWidget {
               ? () async {
                   // Clock in/out logic
                   try {
-                    await UserApi.recordTimeEntry(
-                        userId); // Call recordTimeEntry
+                    await UserApi.recordTimeEntry(userId); // Call recordTimeEntry
+                    // Show snackbar after successful clock in
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Clocked in successfully!'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                     // ... (Additional logic for clocking in)
                   } catch (error) {
                     // Handle errors
                     print('Error recording time entry: $error');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error clocking in: $error'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   }
                 }
               : null,

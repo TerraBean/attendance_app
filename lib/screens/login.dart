@@ -1,5 +1,6 @@
 import 'package:attendance_app/screens/admin_dashboard.dart';
 import 'package:attendance_app/screens/home_screen.dart';
+import 'package:attendance_app/services/admin_api.dart';
 import 'package:attendance_app/services/user_api.dart';
 import 'package:flutter/material.dart';
 
@@ -19,9 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin(bool adminSelected) async {
     try {
-      print(adminSelected);
       final loginResponse = adminSelected
-          ? await UserApi.loginAdmin(_username, _password)
+          ? await AdminApi.loginAdmin(_username, _password)
           : await UserApi.loginUser(_username, _password);
       setState(() {
         _loginMessage = loginResponse.message;
@@ -29,29 +29,27 @@ class _LoginPageState extends State<LoginPage> {
 
         switch (_loginMessage) {
           case 'Login was a successful':
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => HomeScreen(username: _username, userId: _userId),
-            ),
-          );
-          break;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    HomeScreen(username: _username, userId: _userId),
+              ),
+            );
+            break;
           case 'Admin login successful':
-          Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => const AdminDashboard(),
-          ) );
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminDashboard(),
+                ));
             break;
           default:
+
             break;
         }
 
-        if (_loginMessage == 'Login was a successful') {
-          // Navigate to HomeScreen if login successful
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    HomeScreen(username: _username, userId: _userId)),
-          );
-        }
+  
       });
     } on Exception catch (error) {
       setState(() {
@@ -82,7 +80,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: () => _handleLogin(adminSelected), // Pass adminSelected
+              onPressed: () =>
+                  _handleLogin(adminSelected), // Pass adminSelected
               child: const Text('Login'),
             ),
             // generate a check box which when checked will make adminSelected becomes true and vice versa

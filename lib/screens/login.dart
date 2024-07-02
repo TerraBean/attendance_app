@@ -1,7 +1,7 @@
-
 import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/services/user_api.dart';
 import 'package:flutter/material.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -14,9 +14,9 @@ class _LoginPageState extends State<LoginPage> {
   String _password = '';
   String _loginMessage = '';
   String _userId = '';
+  bool adminSelected = false; // Declare adminSelected as a state variable
 
-
-    Future<void> _handleLogin() async {
+  Future<void> _handleLogin() async {
     try {
       final loginResponse = await UserApi.loginUser(_username, _password);
       setState(() {
@@ -26,7 +26,9 @@ class _LoginPageState extends State<LoginPage> {
           // Navigate to HomeScreen if login successful
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen(username: _username, userId: _userId)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    HomeScreen(username: _username, userId: _userId)),
           );
         }
       });
@@ -62,6 +64,18 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: _handleLogin,
               child: const Text('Login'),
             ),
+            // generate a check box which when checked will make adminSelected becomes true and vice versa
+            Checkbox(
+              value: adminSelected, // Bind value to adminSelected
+              onChanged: (value) {
+                setState(() {
+                  adminSelected = value!;
+                   // print the value of adminSelected
+                  print(adminSelected);
+                });
+              },
+            ),
+            const Text('Admin'),
             const SizedBox(height: 10.0),
             Text(_loginMessage),
           ],

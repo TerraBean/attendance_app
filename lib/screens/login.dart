@@ -1,8 +1,10 @@
-import 'package:attendance_app/screens/admin_dashboard.dart';
+import 'package:attendance_app/screens/admin/admin_dashboard.dart';
 import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/services/admin_api.dart';
 import 'package:attendance_app/services/user_api.dart';
 import 'package:flutter/material.dart';
+
+import 'admin/admin.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -41,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AdminDashboard(),
+                  builder: (context) =>  Admin(),
                 ));
             break;
           default:

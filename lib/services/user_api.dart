@@ -3,28 +3,34 @@ import 'package:attendance_app/models/user_info.dart';
 import 'package:http/http.dart' as http;
 
 class UserApi {
+
+// fetch users from the api
   static Future<List<User>> fetchUsers() async {
-    final response =
-        await http.get(Uri.parse('https://randomuser.me/api/?results=20'));
-    final body = response.body;
-    final json = jsonDecode(body);
-    final results = json['results'] as List<dynamic>;
+    final url = Uri.parse('https://user-data.up.railway.app/users');
+    final response = await http.get(url);
 
-    final users = results.map((user) {
-      var name = UserName(
-          title: user['name']['title'],
-          first: user['name']['first'],
-          last: user['name']['last']);
-
-      return User(
-          gender: user['gender'],
-          email: user['email'],
-          phone: user['phone'],
-          name: name);
-    }).toList();
-    return users;
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((user) => User.fromJson(user)).toList();
+    } else {
+      throw Exception('Failed to load users');
+    }
   }
 
+  // login user
+  static Future<User> fetchUser(String userId) async {
+    final url = Uri.parse('https://user-data.up.railway.app/users/$userId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return User.fromJson(data);
+    } else {
+      throw Exception('Failed to load user');
+    }
+  }
+
+  // login user
   static Future<LoginResponse> loginUser(
       String username, String password) async {
     final url = Uri.parse(
@@ -47,6 +53,8 @@ class UserApi {
       throw Exception('Error logging in user: $error');
     }
   }
+
+  
 
   
   static Future<void> recordTimeEntry(String userId) async {

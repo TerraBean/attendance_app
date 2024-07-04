@@ -1,0 +1,23 @@
+
+Administrator
+
+Features
+- See analytics about employees
+- The Administrator should be able to set coordinates
+- Set radius
+
+Pages
+- Dashboard
+  - Total number of clockins
+  - Total number of logins for the day
+  - Total number of employees
+
+- Settings
+  - Set coordinates
+  - Set radius
+
+
+- Employees
+  - Add employee
+  - Edit employee
+  - Delete employee 

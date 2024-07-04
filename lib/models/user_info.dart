@@ -1,26 +1,34 @@
 
 class User{
 
-  final String gender;
-  final String email;
-  final String phone;
-  final UserName name;
+  final String username;
+  final String password;
+  // add other properties as needed
 
-  User({required this.gender, required this.email, required this.phone, required this.name});
+  User({required this.username, required this.password});
 
-  String get fullName{
-    return '${name.title} ${name.first} ${name.last}';
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      username: json['username'],
+      password: json['password'],
+    );
   }
-  
 }
 
-class UserName{
-  final String title;
-  final String first;
-  final String last;
+class Admin{
+  final String username;
+  final String password;
 
-  UserName({required this.title,required this.first,required this.last});
+  Admin({required this.username, required this.password});
+
+  factory Admin.fromJson(Map<String, dynamic> json) {
+    return Admin(
+      username: json['username'],
+      password: json['password'],
+    );
+  }
 }
+
 
 class UserOnline{
   final String username;

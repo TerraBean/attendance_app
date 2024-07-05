@@ -34,7 +34,7 @@ class UserApi {
   static Future<LoginResponse> loginUser(
       String username, String password) async {
     final url = Uri.parse(
-        'https://user-data.up.railway.app/login'); // Replace with your actual API endpoint
+        'https://user-data.up.railway.app/users/login'); // Replace with your actual API endpoint
     final body = {"username": username, "password": password};
     final headers = {'Content-Type': 'application/json'};
     final bodyJson = jsonEncode(body);

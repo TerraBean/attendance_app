@@ -1,4 +1,4 @@
-
+import 'package:attendance_app/widgets/admin_card.dart';
 import 'package:flutter/material.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -11,13 +11,28 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Dashboard'),
-      ),
-      body: Center(
-        child: Text('Admin Dashboard'),
-      ),
-    );
+    return SafeArea(
+        child: Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ReusableCard(
+                icon: Icons.person,
+                title: "Total Employees",
+                data: '20',
+              ),
+            ),
+            Expanded(
+              child: ReusableCard(
+                icon: Icons.person,
+                title: "Total Employees",
+                data: '20',
+              ),
+            ),
+          ],
+        ),
+      ],
+    ));
   }
 }

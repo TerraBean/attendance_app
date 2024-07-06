@@ -1,25 +1,24 @@
+import 'dart:convert';
+
 class TimeEntry {
-  final int id; // Add id to the model
-  final String userId;
+  final int id;
   final DateTime clockedIn;
-  final DateTime? clockedOut; // Make clockedOut nullable
+  final DateTime? clockedOut;
+  final String userId;
 
   TimeEntry({
-    required this.id, // Include id in the constructor
-    required this.userId,
+    required this.id,
     required this.clockedIn,
     this.clockedOut,
+    required this.userId,
   });
 
-  // Factory constructor to create a TimeEntry from a Map
   factory TimeEntry.fromJson(Map<String, dynamic> json) {
     return TimeEntry(
-      id: json['id'], // Get id from the JSON
-      userId: json['user_id'],
+      id: json['id'],
       clockedIn: DateTime.parse(json['clocked_in']),
-      clockedOut: json['clocked_out'] != null
-          ? DateTime.parse(json['clocked_out'])
-          : null,
+      clockedOut: json['clocked_out'] != null ? DateTime.parse(json['clocked_out']) : null,
+      userId: json['user_id'],
     );
   }
 }

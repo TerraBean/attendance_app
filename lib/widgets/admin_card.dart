@@ -5,7 +5,8 @@ class ReusableCard extends StatelessWidget {
   final String title;
   final String data;
 
-  ReusableCard({
+  // ignore: use_key_in_widget_constructors
+  const ReusableCard({
     required this.icon,
     required this.title,
     required this.data,
@@ -14,28 +15,28 @@ class ReusableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Icon(
               icon,
               size: 40,
             ),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 14,),
+                  style: const TextStyle(fontSize: 14,),
                 ),
                 Row(
                   children: [
                     Text(
                       data,
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 8),
                     

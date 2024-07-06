@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'package:attendance_app/models/timeentry.dart';
 import 'package:attendance_app/models/user_info.dart';
 import 'package:http/http.dart' as http;
 
 class UserApi {
-
 // fetch users from the api
   static Future<List<User>> fetchUsers() async {
     final url = Uri.parse('https://user-data.up.railway.app/users');
@@ -54,11 +54,9 @@ class UserApi {
     }
   }
 
-  
-
-  
   static Future<void> recordTimeEntry(String userId) async {
-    final url = Uri.parse('https://user-data.up.railway.app/timeentry');
+    final url =
+        Uri.parse('https://user-data.up.railway.app/timeentry/record-time');
     final body = {'userId': userId};
     final headers = {'Content-Type': 'application/json'};
     final bodyJson = jsonEncode(body);
@@ -76,6 +74,18 @@ class UserApi {
       }
     } catch (error) {
       throw Exception('Error recording time entry: $error');
+    }
+  }
+
+  static Future<List<TimeEntry>> fetchAllTimeEntries() async {
+    final url = Uri.parse('https://user-data.up.railway.app/timeentry/');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((entry) => TimeEntry.fromJson(entry)).toList();
+    } else {
+      throw Exception('Failed to load time entries');
     }
   }
 }

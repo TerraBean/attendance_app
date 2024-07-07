@@ -37,10 +37,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _fetchTotalTimeEntries() async {
+    
+      print('fetching time entries..');
     try {
       final timeEntries = await UserApi.fetchAllTimeEntries();
+      // Update _totalTimeEntries before calling setState
       setState(() {
-        _totalTimeEntries = timeEntries.length;
+        _totalTimeEntries = timeEntries.length; 
         _isLoading = false;
       });
     } catch (error) {

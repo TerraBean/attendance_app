@@ -6,7 +6,6 @@ import 'package:attendance_app/widgets/clock_in_button.dart';
 import 'package:attendance_app/widgets/location_display.dart';
 import 'package:attendance_app/widgets/logout_confirmation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class TimeEntry {
-  final int id;
+  final String id;
   final DateTime clockedIn;
   final DateTime? clockedOut;
   final String userId;
@@ -16,9 +16,9 @@ class TimeEntry {
   factory TimeEntry.fromJson(Map<String, dynamic> json) {
     return TimeEntry(
       id: json['id'],
+      userId: json['user_id'],
       clockedIn: DateTime.parse(json['clocked_in']),
       clockedOut: json['clocked_out'] != null ? DateTime.parse(json['clocked_out']) : null,
-      userId: json['user_id'],
     );
   }
 }

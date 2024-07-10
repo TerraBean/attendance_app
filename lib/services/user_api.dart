@@ -83,7 +83,7 @@ class UserApi {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-    
+    print(data);
       return data.map((entry) => TimeEntry.fromJson(entry)).toList();
     } else {
       throw Exception('Failed to load time entries');

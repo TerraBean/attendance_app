@@ -11,7 +11,8 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _totalEmployees = 0;
-  int _totalTimeEntries = 0;
+  int _totalClockedIn = 0;
+  int _totalClockedOut = 0;
   bool _isLoading = true;
 
   @override
@@ -37,13 +38,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _fetchTotalTimeEntries() async {
-    
-      print('fetching time entries..');
     try {
       final timeEntries = await UserApi.fetchAllTimeEntries();
-      // Update _totalTimeEntries before calling setState
+      // Count clocked-in and clocked-out entries
+      _totalClockedIn = timeEntries.where((entry) => entry.clockedIn != null).length;
+      _totalClockedOut = timeEntries.where((entry) => entry.clockedOut != null).length;
       setState(() {
-        _totalTimeEntries = timeEntries.length; 
         _isLoading = false;
       });
     } catch (error) {
@@ -59,24 +59,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return SafeArea(
       child: Column(
         children: [
+          ReusableCard(
+            icon: Icons.person,
+            title: "Total Employees",
+            data: _isLoading
+                ? '...' // Show "..." while loading
+                : _totalEmployees.toString(),
+          ),
           Row(
             children: [
-              Expanded(
-                child: ReusableCard(
-                  icon: Icons.person,
-                  title: "Total Employees",
-                  data: _isLoading
-                      ? '...' // Show "..." while loading
-                      : _totalEmployees.toString(),
-                ),
-              ),
               Expanded(
                 child: ReusableCard(
                   icon: Icons.access_time,
                   title: "Total In",
                   data: _isLoading
                       ? '...' // Show "..." while loading
-                      : _totalTimeEntries.toString(),
+                      : _totalClockedIn.toString(),
+                ),
+              ),
+              Expanded(
+                child: ReusableCard(
+                  icon: Icons.access_time,
+                  title: "Total Out",
+                  data: _isLoading
+                      ? '...' // Show "..." while loading
+                      : _totalClockedOut.toString(),
                 ),
               ),
             ],

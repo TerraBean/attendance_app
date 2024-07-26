@@ -1,7 +1,9 @@
 import 'package:attendance_app/screens/admin/admin_dashboard.dart';
 import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/services/admin_api.dart';
+import 'package:attendance_app/services/auth_services.dart'; // Import AuthService
 import 'package:attendance_app/services/user_api.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'admin/admin.dart';
@@ -15,47 +17,51 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  String _username = '';
+  String _email = '';
   String _password = '';
   String _loginMessage = '';
   String _userId = '';
   bool adminSelected = false; // Removed this variable
 
+  final AuthService _authService = AuthService(); // Create an instance of AuthService
+
   Future<void> _handleLogin() async { // Removed adminSelected parameter
     if (_formKey.currentState!.validate()) {
       try {
-        // Assuming you have a way to determine if the user is an admin
-        // based on the username or other criteria.
-        bool isAdmin = _username == 'admin'; // Example check
+        // Use AuthService to handle login
+        User? user = await _authService.login(_email, _password);
 
-        final loginResponse = isAdmin
-            ? await AdminApi.loginAdmin(_username, _password)
-            : await UserApi.loginUser(_username, _password);
-        setState(() {
-          _loginMessage = loginResponse.message;
-          _userId = loginResponse.userId;
+        if (user != null) {
+          // Assuming you have a way to determine if the user is an admin
+          // based on the username or other criteria.
+          // For example, you could check the user's role in Firestore.
+          bool isAdmin = await _authService.isAdmin(user.uid); // Example check
 
-          switch (_loginMessage) {
-            case 'Login was a successful':
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      HomeScreen(username: _username, userId: _userId),
-                ),
-              );
-              break;
-            case 'Admin login successful':
+          setState(() {
+            _loginMessage = 'Login successful';
+            _userId = user.uid;
+
+            if (isAdmin) {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => Admin(),
                   ));
-              break;
-            default:
-              break;
-          }
-        });
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      HomeScreen(username: _email, userId: _userId),
+                ),
+              );
+            }
+          });
+        } else {
+          setState(() {
+            _loginMessage = 'Login failed';
+          });
+        }
       } on Exception catch (error) {
         setState(() {
           _loginMessage = error.toString();
@@ -75,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(
@@ -88,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const SizedBox(height: 50),
                 const SizedBox(height: 30),
-                Text(
+                const Text(
                   'Welcome Back!',
                   style: TextStyle(
                     fontSize: 32,
@@ -97,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
+                const Text(
                   'Login to continue',
                   style: TextStyle(
                     fontSize: 16,
@@ -109,22 +115,22 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: TextFormField(
                     decoration: InputDecoration(
-                      hintText: 'Username',
+                      hintText: 'Email',
                       filled: true,
                       fillColor: Colors.grey[200],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25),
                         borderSide: BorderSide.none,
                       ),
-                      prefixIcon: Icon(Icons.person, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.person, color: Colors.grey),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your username';
+                        return 'Please enter your email';
                       }
                       return null;
                     },
-                    onChanged: (value) => setState(() => _username = value),
+                    onChanged: (value) => setState(() => _email = value),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -140,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(25),
                         borderSide: BorderSide.none,
                       ),
-                      prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.lock, color: Colors.grey),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -160,14 +166,14 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _handleLogin, // Call _handleLogin without adminSelected
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 18),
-                        textStyle: TextStyle(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        textStyle: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Login',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -178,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                 Center(
                   child: Text(
                     _loginMessage,
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               ],

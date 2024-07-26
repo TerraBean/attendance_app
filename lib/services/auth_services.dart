@@ -46,4 +46,19 @@ class AuthService {
       return null;
     }
   }
+
+   Future<bool> isAdmin(String uid) async {
+    try {
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        String? role = userDoc.get('role');
+        return role == 'admin'; // Check if the role is 'admin'
+      } else {
+        return false; // User not found
+      }
+    } catch (e) {
+      print('Error checking admin status: $e');
+      return false; // Error occurred
+    }
+  }
 }

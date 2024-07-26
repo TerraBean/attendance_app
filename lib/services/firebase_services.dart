@@ -20,6 +20,8 @@ class FirestoreService {
     }
   }
 
+  
+
   Future<void> clockOut(String timeEntryId) async {
     try {
       User? user = _auth.currentUser;

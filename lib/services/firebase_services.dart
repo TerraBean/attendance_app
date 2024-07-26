@@ -1,23 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class FirebaseFirestoreService {
+class FirestoreService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<UserCredential> signInWithEmailAndPassword(
-      String email, String password) async {
+  Future<void> clockIn() async {
     try {
-      UserCredential userCredential = await _auth
-          .signInWithEmailAndPassword(email: email, password: password);
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      throw Exception('Error signing in: ${e.code}');
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await _db.collection('users').doc(user.uid).collection('timeEntries').add({
+          'clockedIn': FieldValue.serverTimestamp(),
+          'clockedOut': null,
+          'date': DateTime.now(),
+        });
+      }
+    } catch (e) {
+      print('Error clocking in: $e');
     }
   }
 
-  // Add other Firebase Authentication functions as needed, such as:
-  // - createUserWithEmailAndPassword
-  // - sendPasswordResetEmail
-  // - signOut
-  // - getCurrentUser
-  // ...
+  Future<void> clockOut(String timeEntryId) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await _db
+            .collection('users')
+            .doc(user.uid)
+            .collection('timeEntries')
+            .doc(timeEntryId)
+            .update({
+          'clockedOut': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      print('Error clocking out: $e');
+    }
+  }
+
+  Future<QuerySnapshot> getTimeEntries() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      return _db.collection('users').doc(user.uid).collection('timeEntries').get();
+    } else {
+      throw Exception('No user logged in');
+    }
+  }
 }

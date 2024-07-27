@@ -14,11 +14,14 @@ class AuthService {
       );
       User? user = userCredential.user;
 
-      // Update user data in Firestore
-      await _firestore.collection('users').doc(user!.uid).set({
-        'email': email,
-        'role': 'user', // Default role
-      }, SetOptions(merge: true)); // Merge to avoid overwriting existing data
+      // Update user data in Firestore (only if role is not already set)
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(user!.uid).get();
+      if (!userDoc.exists || userDoc.get('role') == null) {
+        await _firestore.collection('users').doc(user.uid).set({
+          'email': email,
+          'role': 'user', // Default role
+        }, SetOptions(merge: true)); // Merge to avoid overwriting existing data
+      }
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -47,7 +50,7 @@ class AuthService {
     }
   }
 
-   Future<bool> isAdmin(String uid) async {
+  Future<bool> isAdmin(String uid) async {
     try {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
       if (userDoc.exists) {

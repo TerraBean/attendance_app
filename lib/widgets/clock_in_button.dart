@@ -1,12 +1,10 @@
+import 'package:attendance_app/services/firebase_services.dart'; // Import FirebaseService
 import 'package:attendance_app/services/location_services.dart';
-import 'package:attendance_app/services/user_api.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ClockInButton extends StatelessWidget {
-  final String userId; // Add userId to the constructor
-
-  ClockInButton({required this.userId}); // Initialize userId
+  // Removed userId from the constructor
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +28,9 @@ class ClockInButton extends StatelessWidget {
               ? () async {
                   // Clock in/out logic
                   try {
-                    await UserApi.recordTimeEntry(userId); // Call recordTimeEntry
+                    final firebaseService =
+                        Provider.of<FirestoreService>(context, listen: false); // Get FirebaseService instance
+                    await firebaseService.clockIn(); // Call clockIn from FirebaseService
                     // Show snackbar after successful clock in
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

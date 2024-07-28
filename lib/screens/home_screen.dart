@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             LocationDisplay(),
             CenterLocationDisplay(),
-            ClockInButton(userId: widget.userId,),
+            ClockInButton(),
           ],
         ),
       ),

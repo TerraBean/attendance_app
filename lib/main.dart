@@ -1,5 +1,6 @@
 
 import 'package:attendance_app/screens/login.dart';
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/services/radius_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LocationService()),
         ChangeNotifierProvider(create: (_) => RadiusService()),
+        ChangeNotifierProvider(create: (context) => FirestoreService()),
       ],
       child: MaterialApp(
         title: 'Clock In/Out App',

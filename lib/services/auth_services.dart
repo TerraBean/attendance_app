@@ -7,9 +7,12 @@ class AuthService {
 
   Future<User?> login(String email, String password) async {
     try {
+      // Trim leading and trailing spaces from email before login
+      email = email.trim();
+
       UserCredential userCredential =
           await _firebaseAuth.signInWithEmailAndPassword(
-        email: email.trim(),
+        email: email,
         password: password.trim(),
       );
       User? user = userCredential.user;
@@ -29,24 +32,37 @@ class AuthService {
     }
   }
 
-  Future<UserCredential?> register(String email, String password) async {
+
+ Future<UserCredential?> register(String email, String password) async {
     try {
-      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      User? user = credential.user;
+      // Trim leading and trailing spaces from email before registration
+      email = email.trim();
 
-      // Add user data to Firestore
-      await _firestore.collection('users').doc(user!.uid).set({
-        'email': email,
-        'role': 'user', // Default role
-      });
-
-      return credential;
+      // Attempt to sign in with the provided email and password
+      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      // If sign-in succeeds, it means the user already exists
+      throw Exception('User with this email already exists.');
     } on FirebaseAuthException catch (e) {
-      print('Error during registration: ${e.code}');
-      return null;
+      if (e.code == 'user-not-found') {
+        // If sign-in fails with 'user-not-found', proceed to create a new user
+        final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        User? user = credential.user;
+
+        // Add user data to Firestore
+        await _firestore.collection('users').doc(user!.uid).set({
+          'email': email,
+          'role': 'user', // Default role
+        });
+
+        return credential;
+      } else {
+        // Handle other authentication errors
+        print('Error during registration: ${e.code}');
+        return null;
+      }
     }
   }
 

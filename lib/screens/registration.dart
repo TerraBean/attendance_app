@@ -1,72 +1,46 @@
-import 'package:attendance_app/screens/admin/admin_dashboard.dart';
-import 'package:attendance_app/screens/home_screen.dart';
-import 'package:attendance_app/screens/registration.dart';
-import 'package:attendance_app/services/admin_api.dart';
 import 'package:attendance_app/services/auth_services.dart';
-import 'package:attendance_app/services/user_api.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:provider/provider.dart';
 
-import 'admin/admin.dart';
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegistrationPage extends StatefulWidget {
+  const RegistrationPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   String _email = '';
   String _password = '';
-  String _loginMessage = '';
-  String _userId = '';
+  String _confirmPassword = '';
+  String _registrationMessage = '';
   bool _isLoading = false;
 
   final AuthService _authService = AuthService();
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegistration() async {
     if (_formKey.currentState!.validate()) {
+      if (_password != _confirmPassword) {
+        setState(() {
+          _registrationMessage = 'Passwords do not match';
+        });
+        return;
+      }
+
       setState(() {
         _isLoading = true;
-        _loginMessage = '';
+        _registrationMessage = '';
       });
 
       try {
-        User? user = await _authService.login(_email, _password);
-
-        if (user != null) {
-          bool isAdmin = await _authService.isAdmin(user.uid);
-
-          setState(() {
-            _userId = user.uid;
-          });
-
-          if (isAdmin) {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Admin(),
-                ));
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(username: _email, userId: _userId),
-              ),
-            );
-          }
-        } else {
-          setState(() {
-            _loginMessage = 'Login failed';
-          });
-        }
+        await _authService.register(_email, _password);
+        setState(() {
+          _registrationMessage = 'Registration successful!';
+        });
       } on Exception catch (error) {
         setState(() {
-          _loginMessage = error.toString();
+          _registrationMessage = error.toString();
         });
       } finally {
         setState(() {
@@ -105,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  'Welcome Back!',
+                  'Create Account',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -114,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Login to continue',
+                  'Sign up to get started',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -170,10 +144,34 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: TextFormField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: 'Confirm Password',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) => setState(() => _confirmPassword = value),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleLogin,
+                      onPressed: _isLoading ? null : _handleRegistration,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: const EdgeInsets.symmetric(vertical: 18),
@@ -188,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                               color: Colors.white,
                             )
                           : const Text(
-                              'Login',
+                              'Sign Up',
                               style: TextStyle(color: Colors.white),
                             ),
                     ),
@@ -197,28 +195,22 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    _loginMessage,
+                    _registrationMessage,
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
                 const SizedBox(height: 20),
                 RichText(
                   text: TextSpan(
-                    text: "Don't have an account? ",
+                    text: "Already have an account? ",
                     style: TextStyle(color: Colors.grey),
                     children: [
                       TextSpan(
-                        text: 'Sign up',
+                        text: 'Login',
                         style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // Navigate to Sign-up to RegistrationPage
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegistrationPage(),
-                              ),
-                            );
+                            // Navigate to Login Page
                           },
                       ),
                     ],

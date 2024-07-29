@@ -1,6 +1,7 @@
 import 'package:attendance_app/services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -38,9 +39,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
         setState(() {
           _registrationMessage = 'Registration successful!';
         });
-      } on Exception catch (error) {
+      } on FirebaseAuthException catch (e) { 
+        if (e.code == 'email-already-in-use') {
+          setState(() {
+            _registrationMessage = 'An account with this email already exists. Please try logging in or using a different email.';
+          });
+        } else {
+          setState(() {
+            _registrationMessage = 'An error occurred during registration. Please try again later.';
+          });
+        }
+      } catch (error) {
         setState(() {
-          _registrationMessage = error.toString();
+          _registrationMessage = 'An error occurred during registration. Please try again later.';
         });
       } finally {
         setState(() {
@@ -211,6 +222,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             // Navigate to Login Page
+                            Navigator.pop(context); // Assuming this goes back to the login page
                           },
                       ),
                     ],

@@ -35,9 +35,6 @@ class AuthService {
 
  Future<UserCredential?> register(String email, String password) async {
     try {
-      // Trim leading and trailing spaces from email before registration
-      email = email.trim();
-
       // Attempt to sign in with the provided email and password
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
       // If sign-in succeeds, it means the user already exists
@@ -61,7 +58,7 @@ class AuthService {
       } else {
         // Handle other authentication errors
         print('Error during registration: ${e.code}');
-        return null;
+        throw e;
       }
     }
   }

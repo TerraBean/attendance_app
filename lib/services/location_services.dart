@@ -5,24 +5,27 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'radius_service.dart';
+import 'firebase_services.dart'; // Import FirebaseService
 
 class LocationService extends ChangeNotifier {
   LocationModel? _currentLocation;
   LocationModel? _centerLocation;
   StreamSubscription<Position>? _positionStreamSubscription;
+  final FirestoreService _firestoreService = FirestoreService(); // Initialize FirebaseService
 
   LocationModel? get currentLocation => _currentLocation;
   LocationModel? get centerLocation => _centerLocation;
 
   LocationService() {
     _initializeLocationStream();
+    _initializeCurrentLocationFromFirestore(); // Initialize from Firestore
   }
 
   void _initializeLocationStream() {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter:1, // Adjust distance filter as per your requirement
+        distanceFilter: 1, // Adjust distance filter as per your requirement
       ),
     ).listen((Position position) {
       // Update currentLocation with every position update from the stream
@@ -32,12 +35,24 @@ class LocationService extends ChangeNotifier {
     });
   }
 
+  Future<void> _initializeCurrentLocationFromFirestore() async {
+    // Retrieve coordinates from Firestore
+    LocationModel? coordinates = await _firestoreService.getCoordinates();
+    if (coordinates != null) {
+      _currentLocation = coordinates;
+      notifyListeners();
+    }
+  }
+
   Future<void> setCenterLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best);
-      _centerLocation = LocationModel(
-          latitude: position.latitude, longitude: position.longitude);
+       // Call updateCenterLocation from FirebaseService
+      await _firestoreService.updateCenterLocation(
+        position.latitude,
+        position.longitude,
+      );
       notifyListeners();
     } catch (e) {
       // Handle the error

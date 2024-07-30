@@ -1,3 +1,4 @@
+import 'package:attendance_app/models/location_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -124,4 +125,53 @@ class FirestoreService extends ChangeNotifier {
       print('Error getting time entries: $e');
     }
   }
+
+  Future<void> updateCenterLocation(double latitude, double longitude) async {
+    try {
+      // Get the current user
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Add the coordinates to the 'coordinates' collection
+        await _db.collection('coordinates').add({
+          'userId': user.uid,
+          'latitude': latitude,
+          'longitude': longitude,
+        });
+      }
+    } catch (e) {
+      print('Error updating center location: $e');
+      
+    }
+  }
+
+ Future<LocationModel?> getCoordinates() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Get the latest coordinate document for the user
+        QuerySnapshot snapshot = await _db
+            .collection('coordinates')
+            .where('userId', isEqualTo: "ZpAqV9ExJ2QxAHWvcGmqd1AdkOn2")
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          // Extract latitude and longitude from the document
+          Map<String, dynamic> data = snapshot.docs.first.data() as Map<String, dynamic>;
+          double latitude = data['latitude'];
+          double longitude = data['longitude'];
+
+          // Return the coordinates as a LocationModel object
+          return LocationModel(latitude: latitude, longitude: longitude);
+        }else{
+          print('Snapshot was empty');
+        }
+      }
+    } catch (e) {
+      print('Error getting coordinates: $e');
+    }
+    return null; // Return null if no coordinates found
+  }
+
 }

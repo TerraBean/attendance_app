@@ -25,7 +25,7 @@ class LocationService extends ChangeNotifier {
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 1, // Adjust distance filter as per your requirement
+        distanceFilter: 0, // Adjust distance filter as per your requirement
       ),
     ).listen((Position position) {
       // Update currentLocation with every position update from the stream
@@ -39,7 +39,7 @@ class LocationService extends ChangeNotifier {
     // Retrieve coordinates from Firestore
     LocationModel? coordinates = await _firestoreService.getCoordinates();
     if (coordinates != null) {
-      _currentLocation = coordinates;
+      _centerLocation = coordinates;
       notifyListeners();
     }
   }

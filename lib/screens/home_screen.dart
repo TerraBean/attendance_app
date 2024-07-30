@@ -25,18 +25,16 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     _locationService = Provider.of<LocationService>(context, listen: false);
-    
   }
 
   void onConfirmLogout() {
-  // Navigate to LoginPage and remove all routes before it
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(builder: (context) => LoginPage()),
-    (route) => false, // Remove all routes until the root route
-  );
-}
-
+    // Navigate to LoginPage and remove all routes before it
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false, // Remove all routes until the root route
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 case 'logout':
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) =>
-                        LogoutConfirmationDialog(
-                          onConfirmLogout: onConfirmLogout, // Pass the function
-                        ),
+                    builder: (BuildContext context) => LogoutConfirmationDialog(
+                      onConfirmLogout: onConfirmLogout, // Pass the function
+                    ),
                   );
                   break;
               }
@@ -104,12 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ClockInButton(),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _locationService.setCenterLocation();
-        },
-        child: const Icon(Icons.my_location),
       ),
     );
   }

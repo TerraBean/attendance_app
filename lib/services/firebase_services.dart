@@ -131,47 +131,45 @@ class FirestoreService extends ChangeNotifier {
       // Get the current user
       User? user = _auth.currentUser;
       if (user != null) {
-        // Add the coordinates to the 'coordinates' collection
-        await _db.collection('coordinates').add({
-          'userId': user.uid,
-          'latitude': latitude,
-          'longitude': longitude,
-        });
+        // Check if the user is the designated admin
+        if (user.uid == "ZpAqV9ExJ2QxAHWvcGmqd1AdkOn2") { // Replace with your admin's ID
+          // Add the coordinates to the 'coordinates' collection
+          await _db.collection('coordinates').doc("admin_coordinates").set({
+            'latitude': latitude,
+            'longitude': longitude,
+          });
+        } else {
+          print('Only the designated admin can set coordinates.');
+        }
       }
     } catch (e) {
       print('Error updating center location: $e');
-      
     }
   }
 
- Future<LocationModel?> getCoordinates() async {
+  Future<LocationModel?> getCoordinates() async {
     try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        // Get the latest coordinate document for the user
-        QuerySnapshot snapshot = await _db
-            .collection('coordinates')
-            .where('userId', isEqualTo: "ZpAqV9ExJ2QxAHWvcGmqd1AdkOn2")
-            .orderBy('timestamp', descending: true)
-            .limit(1)
-            .get();
+      // Get the latest coordinate document
+      DocumentSnapshot snapshot = await _db.collection('coordinates').doc("admin_coordinates").get();
 
-        if (snapshot.docs.isNotEmpty) {
-          // Extract latitude and longitude from the document
-          Map<String, dynamic> data = snapshot.docs.first.data() as Map<String, dynamic>;
-          double latitude = data['latitude'];
-          double longitude = data['longitude'];
+      if (snapshot.exists) {
+        // Extract latitude and longitude from the document
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        double latitude = data['latitude'];
+        double longitude = data['longitude'];
 
-          // Return the coordinates as a LocationModel object
-          return LocationModel(latitude: latitude, longitude: longitude);
-        }else{
-          print('Snapshot was empty');
-        }
+        print('Snapshot is not empty');
+        // print longitude and latitude
+        print('Latitude: $latitude, Longitude: $longitude');
+
+        // Return the coordinates as a LocationModel object
+        return LocationModel(latitude: latitude, longitude: longitude);
+      } else {
+        print('Snapshot was empty');
       }
     } catch (e) {
       print('Error getting coordinates: $e');
     }
     return null; // Return null if no coordinates found
   }
-
 }

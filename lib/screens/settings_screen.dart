@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
                   value: radiusService.radius,
                   min: 5,
                   max: 100,
-                  divisions: 10,
+                  divisions: 20,
                   label: radiusService.radius.round().toString(),
                   onChanged: (double value) {
                     radiusService.setRadius(value);

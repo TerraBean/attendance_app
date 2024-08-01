@@ -1,4 +1,5 @@
 import 'package:attendance_app/services/radius_service.dart';
+import 'package:attendance_app/widgets/radius_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 class SettingsScreen extends StatelessWidget {
@@ -8,33 +9,9 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Settings'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              'Set Radius (meters)',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Consumer<RadiusService>(
-              builder: (context, radiusService, child) {
-                return Slider(
-                  value: radiusService.radius,
-                  min: 5,
-                  max: 100,
-                  divisions: 20,
-                  label: radiusService.radius.round().toString(),
-                  onChanged: (double value) {
-                    radiusService.setRadius(value);
-                
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      body: RadiusSettings(),
     );
   }
 }
+
+

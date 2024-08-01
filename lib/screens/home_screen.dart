@@ -3,6 +3,7 @@ import 'package:attendance_app/screens/settings_screen.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/widgets/center_location_display.dart';
 import 'package:attendance_app/widgets/clock_in_button.dart';
+import 'package:attendance_app/widgets/clock_out_button.dart';
 import 'package:attendance_app/widgets/location_display.dart';
 import 'package:attendance_app/widgets/logout_confirmation.dart';
 import 'package:flutter/material.dart';
@@ -99,6 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
             LocationDisplay(),
             CenterLocationDisplay(),
             ClockInButton(),
+            SizedBox(height: 20),
+            ClockOutButton(),
           ],
         ),
       ),

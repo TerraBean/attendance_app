@@ -67,15 +67,22 @@ class LocationService extends ChangeNotifier {
 
     final radiusService = Provider.of<RadiusService>(context, listen: false);
     final radius = radiusService.radius;
-    double distance = Geolocator.distanceBetween(
-      _centerLocation!.latitude,
-      _centerLocation!.longitude,
-      _currentLocation!.latitude,
-      _currentLocation!.longitude,
-    );
 
-    return distance <= radius;
+    // Check if radius is not null before comparing
+    if (radius != null) {
+      double distance = Geolocator.distanceBetween(
+        _centerLocation!.latitude,
+        _centerLocation!.longitude,
+        _currentLocation!.latitude,
+        _currentLocation!.longitude,
+      );
+
+      return distance <= radius;
+    } else {
+      return false; // Or handle the case where radius is null
+    }
   }
+
 
   @override
   void dispose() {

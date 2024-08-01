@@ -1,3 +1,4 @@
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/widgets/admin_card.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/services/user_api.dart';
@@ -22,9 +23,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _fetchTotalTimeEntries();
   }
 
+  final firebaseService = FirestoreService();
+
   Future<void> _fetchTotalEmployees() async {
     try {
-      final users = await UserApi.fetchUsers();
+      final users = await firebaseService.getEmployees();
       setState(() {
         _totalEmployees = users.length;
         _isLoading = false;
@@ -36,6 +39,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
     }
   }
+
+
 
   Future<void> _fetchTotalTimeEntries() async {
     try {
@@ -77,15 +82,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       : _totalClockedIn.toString(),
                 ),
               ),
-              Expanded(
-                child: ReusableCard(
-                  icon: Icons.access_time,
-                  title: "Total Out",
-                  data: _isLoading
-                      ? '...' // Show "..." while loading
-                      : _totalClockedOut.toString(),
-                ),
-              ),
+             
             ],
           ),
         ],

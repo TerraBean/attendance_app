@@ -21,4 +21,18 @@ Pages
   - Add employee
   - Edit employee
   - Delete employee 
+
+
+
+- Miscellaneous Features
+ - Employee login history
+ - Employee clockin history
+
+
+- Preventing users from using different phones to login
+  - Allow users to only log out 1 hour after clockin
+  - Using Google,Apple Login strategy
+  - Save id/s of phones against emails and check during login
+  -
+
   

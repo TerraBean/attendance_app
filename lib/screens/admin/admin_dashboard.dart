@@ -2,6 +2,7 @@ import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/widgets/admin_card.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/services/user_api.dart';
+import 'package:provider/provider.dart'; // Import Provider
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -20,7 +21,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     _fetchTotalEmployees();
-    _fetchTotalTimeEntries();
+    // No need to call _fetchTotalTimeEntries anymore
   }
 
   final firebaseService = FirestoreService();
@@ -34,25 +35,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
     } catch (error) {
       print('Error fetching users: $error');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-
-
-  Future<void> _fetchTotalTimeEntries() async {
-    try {
-      final timeEntries = await UserApi.fetchAllTimeEntries();
-      // Count clocked-in and clocked-out entries
-      _totalClockedIn = timeEntries.where((entry) => entry.clockedIn != null).length;
-      _totalClockedOut = timeEntries.where((entry) => entry.clockedOut != null).length;
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (error) {
-      print('Error fetching time entries: $error');
       setState(() {
         _isLoading = false;
       });
@@ -74,15 +56,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Row(
             children: [
               Expanded(
-                child: ReusableCard(
-                  icon: Icons.access_time,
-                  title: "Total In",
-                  data: _isLoading
-                      ? '...' // Show "..." while loading
-                      : _totalClockedIn.toString(),
+                child: Consumer<FirestoreService>(
+                  builder: (context, firebaseService, child) {
+                    // Get the time entries for today from the provider
+                    Map<String, List<Map<String, dynamic>>> timeEntries =
+                        firebaseService.timeEntriesByUser;
+
+                    // Calculate the number of clocked-in employees
+                    _totalClockedIn = timeEntries
+                        .where((entry) => entry['clockedOut'] == null)
+                        .length;
+
+                    return ReusableCard(
+                      icon: Icons.access_time,
+                      title: "Total In",
+                      data: _isLoading
+                          ? '...' // Show "..." while loading
+                          : _totalClockedIn.toString(),
+                    );
+                  },
                 ),
               ),
-             
+              // ... (Other widgets)
             ],
           ),
         ],

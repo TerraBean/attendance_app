@@ -7,16 +7,11 @@ class FirestoreService extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Data to be observed for changes
-  Map<String, List<Map<String, dynamic>>> _timeEntriesByUser = {};
-
-  // Getter for the time entries by user
-  Map<String, List<Map<String, dynamic>>> get timeEntriesByUser =>
-      _timeEntriesByUser;
 
   // Cache for employee data
   Map<String, Map<String, dynamic>> _employeeCache = {};
 
+  Map<String, Map<String, dynamic>> get employeeCache => _employeeCache;
   Future<List<Map<String, dynamic>>> getEmployees() async {
     try {
       if (_employeeCache.isEmpty) {
@@ -150,78 +145,25 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<void> getTimeEntries() async {
+  Future<double?> getRadius() async {
     try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        QuerySnapshot snapshot = await _db
-            .collection('users')
-            .doc(user.uid)
-            .collection('timeEntries')
-            .get();
+      // Get the latest radius document
+      DocumentSnapshot snapshot =
+          await _db.collection('radius').doc("admin_radius").get();
 
-        _timeEntriesByUser[user.uid] = snapshot.docs.map((doc) {
-          var data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          return data;
-        }).toList();
-        notifyListeners();
+      if (snapshot.exists) {
+        // Extract the radius from the document
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        double radius = data['radius'];
+
+        return radius;
+      } else {
+        print('Snapshot was empty');
       }
     } catch (e) {
-      print('Error getting time entries: $e');
+      print('Error getting radius: $e');
     }
-  }
-
-  Future<List<Map<String, dynamic>>> getTimeEntriesForToday() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        DateTime today = DateTime.now();
-        DateTime todayStart = DateTime(today.year, today.month, today.day);
-        DateTime todayEnd = todayStart.add(Duration(days: 1));
-
-        QuerySnapshot snapshot = await _db
-            .collection('users')
-            .doc(user.uid)
-            .collection('timeEntries')
-            .where('date', isGreaterThanOrEqualTo: todayStart)
-            .where('date', isLessThan: todayEnd)
-            .get();
-
-        List<Map<String, dynamic>> timeEntries = snapshot.docs.map((doc) {
-          var data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          return data;
-        }).toList();
-
-        return timeEntries;
-      }
-    } catch (e) {
-      print('Error getting time entries for today: $e');
-    }
-    return [];
-  }
-
-  Future<String?> getLastTimeEntryId() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        QuerySnapshot snapshot = await _db
-            .collection('users')
-            .doc(user.uid)
-            .collection('timeEntries')
-            .orderBy('date', descending: true)
-            .limit(1)
-            .get();
-
-        if (snapshot.docs.isNotEmpty) {
-          return snapshot.docs.first.id;
-        }
-      }
-    } catch (e) {
-      print('Error getting last time entry ID: $e');
-    }
-    return null;
+    return null; // Return null if no radius found
   }
 
   Future<void> updateCenterLocation(double latitude, double longitude) async {

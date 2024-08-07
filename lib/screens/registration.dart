@@ -1,4 +1,5 @@
 import 'package:attendance_app/services/auth_services.dart';
+import 'package:attendance_app/utils/device_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,23 +36,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
       });
 
       try {
-        await _authService.register(_email, _password);
+        final deviceInfo = await DeviceUtils.getDeviceId();
+        if (deviceInfo == null) {
+          throw Exception('Failed to get device information.');
+        }
+
+        await _authService.register(_email, _password, deviceInfo);
         setState(() {
           _registrationMessage = 'Registration successful!';
         });
-      } on FirebaseAuthException catch (e) { 
+      } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
           setState(() {
-            _registrationMessage = 'An account with this email already exists. Please try logging in or using a different email.';
+            _registrationMessage =
+                'An account with this email already exists. Please try logging in or using a different email.';
           });
         } else {
           setState(() {
-            _registrationMessage = 'An error occurred during registration. Please try again later.';
+            _registrationMessage =
+                'An error occurred during registration. Please try again later.';
           });
         }
       } catch (error) {
         setState(() {
-          _registrationMessage = 'An error occurred during registration. Please try again later.';
+          _registrationMessage =
+              'An error occurred during registration. Please try again later.';
         });
       } finally {
         setState(() {
@@ -59,6 +68,111 @@ class _RegistrationPageState extends State<RegistrationPage> {
         });
       }
     }
+  }
+
+  Widget _buildEmailField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        decoration: InputDecoration(
+          hintText: 'Email',
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: const Icon(Icons.person, color: Colors.grey),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your email';
+          }
+          return null;
+        },
+        onChanged: (value) => setState(() => _email = value),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        obscureText: true,
+        decoration: InputDecoration(
+          hintText: 'Password',
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your password';
+          }
+          return null;
+        },
+        onChanged: (value) => setState(() => _password = value),
+      ),
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        obscureText: true,
+        decoration: InputDecoration(
+          hintText: 'Confirm Password',
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please confirm your password';
+          }
+          return null;
+        },
+        onChanged: (value) => setState(() => _confirmPassword = value),
+      ),
+    );
+  }
+
+  Widget _buildRegistrationButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _handleRegistration,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: _isLoading
+              ? CircularProgressIndicator(
+                  color: Colors.white,
+                )
+              : const Text(
+                  'Sign Up',
+                  style: TextStyle(color: Colors.white),
+                ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -106,103 +220,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'Email',
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: const Icon(Icons.person, color: Colors.grey),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => setState(() => _email = value),
-                  ),
-                ),
+                _buildEmailField(),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: TextFormField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: 'Password',
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: const Icon(Icons.lock, color: Colors.grey),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => setState(() => _password = value),
-                  ),
-                ),
+                _buildPasswordField(),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: TextFormField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: 'Confirm Password',
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: const Icon(Icons.lock, color: Colors.grey),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => setState(() => _confirmPassword = value),
-                  ),
-                ),
+                _buildConfirmPasswordField(),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleRegistration,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        textStyle: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          : const Text(
-                              'Sign Up',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                    ),
-                  ),
-                ),
+                _buildRegistrationButton(),
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
@@ -218,11 +242,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     children: [
                       TextSpan(
                         text: 'Login',
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // Navigate to Login Page
-                            Navigator.pop(context); // Assuming this goes back to the login page
+                            Navigator.pop(context); // Navigate back to login page
                           },
                       ),
                     ],

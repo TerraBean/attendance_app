@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -33,7 +34,7 @@ class AuthService {
   }
 
 
- Future<UserCredential?> register(String email, String password) async {
+ Future<UserCredential?> register(String email, String password, String deviceInfo) async {
     try {
       // Attempt to sign in with the provided email and password
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);

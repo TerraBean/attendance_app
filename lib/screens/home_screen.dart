@@ -97,10 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: <Widget>[
             Text('Welcome, ${widget.username}!'),
             const SizedBox(height: 20),
-            Text('Your ID is: ${widget.userId}'),
-            const SizedBox(height: 20),
-            LocationDisplay(),
-            CenterLocationDisplay(),
+            // LocationDisplay(),
+            // CenterLocationDisplay(),
             ClockInButton(),
             SizedBox(height: 20),
             ClockOutButton(),

@@ -59,13 +59,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 child: Consumer<FirestoreService>(
                   builder: (context, firebaseService, child) {
                     // Get the time entries for today from the provider
-                    Map<String, List<Map<String, dynamic>>> timeEntries =
-                        firebaseService.timeEntriesByUser;
+                    // Map<String, List<Map<String, dynamic>>> timeEntries =
+                    //     firebaseService.timeEntriesByUser;
 
-                    // Calculate the number of clocked-in employees
-                    _totalClockedIn = timeEntries
-                        .where((entry) => entry['clockedOut'] == null)
-                        .length;
+                    // // Calculate the number of clocked-in employees
+                    // _totalClockedIn = timeEntries
+                    //     .where((entry) => entry['clockedOut'] == null)
+                    //     .length;
 
                     return ReusableCard(
                       icon: Icons.access_time,

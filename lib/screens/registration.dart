@@ -36,7 +36,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       });
 
       try {
-        final deviceInfo = await DeviceUtils.getDeviceId();
+        final deviceInfo = await DeviceUtils.getDeviceId(context);
         if (deviceInfo == null) {
           throw Exception('Failed to get device information.');
         }

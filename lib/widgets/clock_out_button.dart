@@ -26,24 +26,13 @@ class ClockOutButton extends StatelessWidget {
           ),
           onPressed: isWithinRadius
               ? () async {
-                  // Clock in/out logic
+                  // clockout
+                  final firebaseService =
+                      Provider.of<FirestoreService>(context, listen: false); // Get FirebaseService instance
+                  await firebaseService.clockOut(context); // Call clockOut from FirebaseService
+                  // Show snackbar after successful clock out
                   try {
-                    final firebaseService =
-                        Provider.of<FirestoreService>(context, listen: false); // Get FirebaseService instance
-                    // Get the latest time entry ID
-                    final timeEntryId = await firebaseService.getLastTimeEntryId();
-                    if (timeEntryId != null) {
-                      await firebaseService.clockOut(timeEntryId, context); // Call clockOut from FirebaseService
-                
-                    } else {
-                      // Handle the case where no time entry is found
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('No active time entry found.'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
+                   print('Clocked out');
                     // ... (Additional logic for clocking out)
                   } catch (error) {
                     // Handle errors

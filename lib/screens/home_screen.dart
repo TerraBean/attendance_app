@@ -23,9 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _locationService = Provider.of<LocationService>(context, listen: false);
+
+    // Request location permission immediately on screen load
+    _locationService.requestLocationPermission();
   }
 
   void onConfirmLogout() {

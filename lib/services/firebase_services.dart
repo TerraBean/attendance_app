@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:attendance_app/models/location_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +14,8 @@ class FirestoreService extends ChangeNotifier {
   Map<String, Map<String, dynamic>> _employeeCache = {};
 
   Map<String, Map<String, dynamic>> get employeeCache => _employeeCache;
+
+  Map<String, List<Map<String, dynamic>>> _timeEntriesByUser = {};
   Future<List<Map<String, dynamic>>> getEmployees() async {
     try {
       if (_employeeCache.isEmpty) {
@@ -36,7 +40,7 @@ class FirestoreService extends ChangeNotifier {
       if (user != null) {
         DateTime today = DateTime.now();
         DateTime todayStart = DateTime(today.year, today.month, today.day);
-        DateTime todayEnd = todayStart.add(Duration(days: 1));
+        DateTime todayEnd = todayStart.add(const Duration(days: 1));
 
         QuerySnapshot snapshot = await _db
             .collection('users')
@@ -48,7 +52,7 @@ class FirestoreService extends ChangeNotifier {
 
         if (snapshot.docs.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('You have already clocked in today.'),
               duration: Duration(seconds: 2),
             ),
@@ -77,7 +81,7 @@ class FirestoreService extends ChangeNotifier {
         notifyListeners();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Clocked in successfully!'),
             duration: Duration(seconds: 2),
           ),
@@ -88,13 +92,14 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<void> clockOut(String timeEntryId, BuildContext context) async {
+
+ Future<void> clockOut(BuildContext context) async {
     try {
       User? user = _auth.currentUser;
       if (user != null) {
         DateTime today = DateTime.now();
         DateTime todayStart = DateTime(today.year, today.month, today.day);
-        DateTime todayEnd = todayStart.add(Duration(days: 1));
+        DateTime todayEnd = todayStart.add(const Duration(days: 1));
 
         QuerySnapshot snapshot = await _db
             .collection('users')
@@ -102,39 +107,51 @@ class FirestoreService extends ChangeNotifier {
             .collection('timeEntries')
             .where('date', isGreaterThanOrEqualTo: todayStart)
             .where('date', isLessThan: todayEnd)
-            .where('clockedOut', isNotEqualTo: null)
             .get();
 
-        if (snapshot.docs.isNotEmpty) {
+        if (snapshot.docs.isEmpty) {
+          // No clock-in record found for today
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('You have already clocked out today.'),
+            const SnackBar(
+              content: Text('You have to clock in first.'),
               duration: Duration(seconds: 2),
             ),
           );
           return;
         }
 
+        // Find the latest clock-in record
+        DocumentSnapshot latestClockIn = snapshot.docs.last;
+
+        // Check if the latest clock-in record has a clockedOut timestamp
+        if (latestClockIn.get('clockedOut') != null) {
+          // User has already clocked out
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You have already clocked out.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+
+        // Update the clock-in record with the clock-out timestamp
         await _db
             .collection('users')
             .doc(user.uid)
             .collection('timeEntries')
-            .doc(timeEntryId)
+            .doc(latestClockIn.id)
             .update({
           'clockedOut': FieldValue.serverTimestamp(),
         });
 
-        if (_timeEntriesByUser.containsKey(user.uid)) {
-          int index = _timeEntriesByUser[user.uid]!
-              .indexWhere((entry) => entry['id'] == timeEntryId);
-          if (index != -1) {
-            _timeEntriesByUser[user.uid]![index]['clockedOut'] = DateTime.now();
-            notifyListeners();
-          }
-        }
+        // Update the local cache
+        _timeEntriesByUser[user.uid]!.last['clockedOut'] = DateTime.now();
+
+        notifyListeners();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Clocked out successfully!'),
             duration: Duration(seconds: 2),
           ),
@@ -144,6 +161,7 @@ class FirestoreService extends ChangeNotifier {
       print('Error clocking out: $e');
     }
   }
+
 
   Future<double?> getRadius() async {
     try {

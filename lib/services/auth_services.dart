@@ -1,12 +1,14 @@
+import 'package:attendance_app/utils/device_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<User?> login(String email, String password) async {
+    Future<User?> login(String email, String password, BuildContext context) async {
     try {
       // Trim leading and trailing spaces from email before login
       email = email.trim();
@@ -18,12 +20,25 @@ class AuthService {
       );
       User? user = userCredential.user;
 
-      // Update user data in Firestore (only if role is not already set)
+      // Get the device ID
+      String? deviceId = await DeviceUtils.getDeviceId(context);
+
+      // Check if the device ID matches the user's device ID in Firestore
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(user!.uid).get();
+      if (userDoc.exists) {
+        String? storedDeviceId = userDoc.get('deviceId');
+        if (storedDeviceId != deviceId) {
+          // Device ID mismatch, throw an error
+          throw Exception('Cannot log in from this device.');
+        }
+      }
+
+      // Update user data in Firestore (only if role is not already set)
       if (!userDoc.exists || userDoc.get('role') == null) {
         await _firestore.collection('users').doc(user.uid).set({
           'email': email,
           'role': 'user', // Default role
+          'deviceId': deviceId // Store the device ID
         }, SetOptions(merge: true)); // Merge to avoid overwriting existing data
       }
 
@@ -53,6 +68,7 @@ class AuthService {
         await _firestore.collection('users').doc(user!.uid).set({
           'email': email,
           'role': 'user', // Default role
+          'deviceId': deviceInfo
         });
 
         return credential;

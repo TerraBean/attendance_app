@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        User? user = await _authService.login(_email, _password);
+        User? user = await _authService.login(_email, _password,context);
 
         if (user != null) {
           bool isAdmin = await _authService.isAdmin(user.uid);

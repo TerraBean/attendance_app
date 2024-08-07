@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:attendance_app/models/location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'radius_service.dart';
 import 'firebase_services.dart'; // Import FirebaseService
@@ -83,6 +84,42 @@ class LocationService extends ChangeNotifier {
     }
   }
 
+Future<void> requestLocationPermission() async {
+    // Request location permission
+    PermissionStatus status = await Permission.location.request();
+
+    // Handle permission status
+    switch (status) {
+      case PermissionStatus.granted:
+        // Permission granted, proceed with location services
+        print('Location permission granted.');
+        break;
+      case PermissionStatus.denied:
+        // Permission denied, show a message to the user
+        print('Location permission denied.');
+        break;
+      case PermissionStatus.permanentlyDenied:
+        // Permission permanently denied, show a message to the user
+        print('Location permission permanently denied.');
+        break;
+      case PermissionStatus.limited:
+        // Permission limited, show a message to the user
+        print('Location permission limited.');
+        break;
+      case PermissionStatus.restricted:
+        // Permission restricted, show a message to the user
+        print('Location permission restricted.');
+        break;
+      case PermissionStatus.provisional:
+        // Permission provisional, show a message to the user
+        print('Location permission provisional.');
+        break;
+      default:
+        // TODO: Handle this case.
+        print('Location permission unknown.');
+        break;
+    }
+  }
 
   @override
   void dispose() {

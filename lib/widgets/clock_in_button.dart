@@ -22,7 +22,9 @@ class ClockInButton extends StatelessWidget {
 
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: isWithinRadius ? Colors.red : Colors.grey,
+            backgroundColor: isWithinRadius ? Colors.green[400] : Colors.grey,
+            padding: EdgeInsets.all(40), // Add padding for a bigger button
+            shape: CircleBorder(), // Make the button circular
           ),
           onPressed: isWithinRadius
               ? () async {
@@ -41,7 +43,12 @@ class ClockInButton extends StatelessWidget {
                   }
                 }
               : null,
-          child: Text('Clock In'),
+          child: Text(
+            'Clock In',
+            style: TextStyle(color: Colors.white, fontSize: 20),
+            textAlign: TextAlign.center, // Center the text
+            overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+          ), // Increase font size
         );
       },
     );

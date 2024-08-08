@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Clock In/Out App',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),

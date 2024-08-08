@@ -41,10 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Extract username from email
+    String displayedUsername = widget.username.split('@')[0].toUpperCase();
+
+    // Get the first letter of the username
+    String firstLetter = displayedUsername.substring(0, 1);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clock In/Out App'),
         actions: [
+          // Add some spacing before the avatar
+          SizedBox(width: 16), // Adjust the width as needed
+          // PopupMenuButton triggered by the avatar
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
@@ -88,6 +97,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ];
             },
+            child: // Avatar with first letter of username
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Text(
+                  firstLetter,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -95,10 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Welcome, ${widget.username}!'),
+            Text('Welcome, $displayedUsername!'), // Display only the username
             const SizedBox(height: 20),
-            // LocationDisplay(),
-            // CenterLocationDisplay(),
             ClockInButton(),
             SizedBox(height: 20),
             ClockOutButton(),

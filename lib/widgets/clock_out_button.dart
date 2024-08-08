@@ -40,7 +40,7 @@ class ClockOutButton extends StatelessWidget {
                   }
                 }
               : null,
-          child: Text('Clock Out'),
+          child: Text('Clock Out', style: TextStyle(color: Colors.white),),
         );
       },
     );

@@ -1,10 +1,17 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:attendance_app/screens/edit_profile.dart';
+import 'package:attendance_app/screens/login.dart';
+import 'package:attendance_app/services/auth_services.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  // function to logout using AuthService logout function
+  void logout() async {
+    await AuthService().logout();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +38,8 @@ class ProfilePage extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 50,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/300'), // Replace with user's image URL
+              backgroundImage: NetworkImage(
+                  'https://i.pravatar.cc/300'), // Replace with user's image URL
             ),
             const SizedBox(height: 10),
             const Text(
@@ -54,7 +62,8 @@ class ProfilePage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -78,10 +87,11 @@ class ProfilePage extends StatelessWidget {
               },
               child: const Text(
                 'INCOME HISTORY',
-                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 70),
             InkWell(
               onTap: () {
                 showDialog(
@@ -97,7 +107,8 @@ class ProfilePage extends StatelessWidget {
                           SizedBox(height: 10),
                           Text(
                             'Logout',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -105,12 +116,19 @@ class ProfilePage extends StatelessWidget {
                       actions: <Widget>[
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
-                            // Implement the actual logout functionality here
+                            // call logout function from authservice and navigate to LoginPage
+                            logout();
+                            // Use navigator to navigate to LoginPage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -136,17 +154,8 @@ class ProfilePage extends StatelessWidget {
               },
               child: const Text(
                 'LOG OUT',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 10),
-            InkWell(
-              onTap: () {
-                // Implement delete account functionality
-              },
-              child: const Text(
-                'DELETE ACCOUNT',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
             ),
           ],

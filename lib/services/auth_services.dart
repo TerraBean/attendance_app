@@ -94,4 +94,8 @@ class AuthService {
       return false; // Error occurred
     }
   }
+
+  Future<void> logout() async {
+    await _firebaseAuth.signOut();
+  }
 }

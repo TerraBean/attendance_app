@@ -9,13 +9,13 @@ class FirestoreService extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
   // Cache for employee data
   Map<String, Map<String, dynamic>> _employeeCache = {};
 
   Map<String, Map<String, dynamic>> get employeeCache => _employeeCache;
 
   Map<String, List<Map<String, dynamic>>> _timeEntriesByUser = {};
+
   Future<List<Map<String, dynamic>>> getEmployees() async {
     try {
       if (_employeeCache.isEmpty) {
@@ -92,8 +92,7 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-
- Future<void> clockOut(BuildContext context) async {
+  Future<void> clockOut(BuildContext context) async {
     try {
       User? user = _auth.currentUser;
       if (user != null) {
@@ -161,7 +160,6 @@ class FirestoreService extends ChangeNotifier {
       print('Error clocking out: $e');
     }
   }
-
 
   Future<double?> getRadius() async {
     try {
@@ -236,4 +234,5 @@ class FirestoreService extends ChangeNotifier {
       print('Error updating radius: $e');
     }
   }
+
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:attendance_app/screens/edit_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +46,8 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                 Navigator.push(
+                // Navigate to EditProfilePage
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => EditProfilePage()),
                 );
@@ -81,7 +84,55 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20),
             InkWell(
               onTap: () {
-                // Implement log out functionality
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      title: Column(
+                        children: const [
+                          Icon(Icons.logout, size: 50, color: Colors.red),
+                          SizedBox(height: 10),
+                          Text(
+                            'Logout',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      content: const Text('Are you sure you want to logout?'),
+                      actions: <Widget>[
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // Implement the actual logout functionality here
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'Yes, logout',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Closes the dialog
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: const Text(
                 'LOG OUT',

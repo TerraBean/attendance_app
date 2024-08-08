@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:attendance_app/screens/login.dart';
+import 'package:attendance_app/screens/my_profile.dart';
 import 'package:attendance_app/screens/settings_screen.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/widgets/center_location_display.dart';
@@ -48,57 +51,22 @@ class _HomeScreenState extends State<HomeScreen> {
     String firstLetter = displayedUsername.substring(0, 1);
 
     return Scaffold(
-      appBar: AppBar(
+       appBar: AppBar(
         title: const Text('Clock In/Out App'),
         actions: [
           // Add some spacing before the avatar
           SizedBox(width: 16), // Adjust the width as needed
-          // PopupMenuButton triggered by the avatar
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              switch (value) {
-                case 'settings':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingsScreen()),
-                  );
-                  break;
-                case 'logout':
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => LogoutConfirmationDialog(
-                      onConfirmLogout: onConfirmLogout, // Pass the function
-                    ),
-                  );
-                  break;
-              }
+
+          // Wrap the CircleAvatar in a GestureDetector to handle taps
+          GestureDetector(
+            onTap: () {
+              // Navigate to ProfilePage when the avatar is tapped
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
             },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: 'settings',
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings),
-                      SizedBox(width: 10),
-                      Text('Settings'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Row(
-                    children: [
-                      Icon(Icons.logout),
-                      SizedBox(width: 10),
-                      Text('Logout'),
-                    ],
-                  ),
-                ),
-              ];
-            },
-            child: // Avatar with first letter of username
-            Padding(
+            child: Padding(
               padding: const EdgeInsets.all(10),
               child: CircleAvatar(
                 backgroundColor: Colors.blue,

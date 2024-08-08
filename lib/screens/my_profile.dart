@@ -1,3 +1,4 @@
+import 'package:attendance_app/screens/edit_profile.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -43,7 +44,10 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Implement edit profile functionality
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditProfilePage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,

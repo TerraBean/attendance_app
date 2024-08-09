@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:attendance_app/models/location_model.dart';
+import 'package:attendance_app/models/user_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,11 @@ class FirestoreService extends ChangeNotifier {
       return [];
     }
   }
+
+  // Variable to store the current Employee
+  Employee? _currentEmployee;
+
+  Employee? get currentEmployee => _currentEmployee;
 
   Future<void> clockIn(BuildContext context) async {
     try {
@@ -89,6 +95,46 @@ class FirestoreService extends ChangeNotifier {
       }
     } catch (e) {
       print('Error clocking in: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployee(String uid) async {
+    try {
+      // Get the user document from Firestore
+      DocumentSnapshot snapshot = await _db.collection('users').doc(uid).get();
+
+      // If the document exists, return the data as a Map
+      if (snapshot.exists) {
+        // Update the _currentEmployee variable
+        _currentEmployee =
+            Employee.fromJson(snapshot.data() as Map<String, dynamic>);
+        notifyListeners(); // Notify listeners that the currentEmployee has changed
+        return snapshot.data() as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('Error getting employee data: $e');
+    }
+    return null; // Return null if the document doesn't exist or an error occurs
+  }
+
+  // Function to populate _currentEmployee during login
+  Future<void> populateCurrentEmployee(BuildContext context) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Get the user document from Firestore
+        DocumentSnapshot snapshot =
+            await _db.collection('users').doc(user.uid).get();
+
+        // If the document exists, update _currentEmployee
+        if (snapshot.exists) {
+          _currentEmployee =
+              Employee.fromJson(snapshot.data() as Map<String, dynamic>);
+          notifyListeners(); // Notify listeners that the currentEmployee has changed
+        }
+      }
+    } catch (e) {
+      print('Error populating current employee: $e');
     }
   }
 
@@ -234,5 +280,4 @@ class FirestoreService extends ChangeNotifier {
       print('Error updating radius: $e');
     }
   }
-
 }

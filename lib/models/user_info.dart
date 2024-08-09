@@ -1,19 +1,19 @@
 
-class User{
+// class User{
 
-  final String username;
-  final String password;
-  // add other properties as needed
+//   final String username;
+//   final String password;
+//   // add other properties as needed
 
-  User({required this.username, required this.password});
+//   User({required this.username, required this.password});
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      username: json['username'],
-      password: json['password'],
-    );
-  }
-}
+//   factory User.fromJson(Map<String, dynamic> json) {
+//     return User(
+//       username: json['username'],
+//       password: json['password'],
+//     );
+//   }
+// }
 
 class Admin{
   final String username;
@@ -51,5 +51,47 @@ class LoginResponse {
       userId: json['userId'],
       user: json['user'],
     );
+  }
+}
+
+class Employee {
+  final String email;
+  final String firstName;
+  final String lastName;
+  final String role;
+  final String deviceId;
+  final String? staffNumber; // Staff number can be null
+
+  Employee({
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.role,
+    required this.deviceId,
+    this.staffNumber,
+  });
+
+  // Factory constructor to create an Employee from a Map
+  factory Employee.fromJson(Map<String, dynamic> json) {
+    return Employee(
+      email: json['email'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      role: json['role'],
+      deviceId: json['deviceId'],
+      staffNumber: json['staffNumber'], // Handle null staffNumber
+    );
+  }
+
+  // Method to convert Employee to a Map
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'role': role,
+      'deviceId': deviceId,
+      'staffNumber': staffNumber,
+    };
   }
 }

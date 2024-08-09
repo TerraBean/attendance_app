@@ -1,5 +1,6 @@
 
 import 'package:attendance_app/screens/login.dart';
+import 'package:attendance_app/screens/registration.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/services/radius_service.dart';
@@ -27,7 +28,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Clock In/Out App',
         debugShowCheckedModeBanner: false,
-        
+         routes: {
+    '/login': (context) => LoginPage(),
+    '/registration': (context) => RegistrationPage(),
+    // ... other routes
+  },
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),

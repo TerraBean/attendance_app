@@ -128,8 +128,21 @@ class FirestoreService extends ChangeNotifier {
 
         // If the document exists, update _currentEmployee
         if (snapshot.exists) {
+          print('Snapshot data');
+          print(snapshot.data());
           _currentEmployee =
               Employee.fromJson(snapshot.data() as Map<String, dynamic>);
+
+          // Test if _currentEmployee was populated
+        if (_currentEmployee != null) {
+          print('Current employee populated successfully!');
+          print('First Name: ${_currentEmployee!.firstName}');
+          print('Last Name: ${_currentEmployee!.lastName}');
+          // Add more properties to check as needed
+        } else {
+          print('Error populating _currentEmployee. It is null.');
+        }
+
           notifyListeners(); // Notify listeners that the currentEmployee has changed
         }
       }

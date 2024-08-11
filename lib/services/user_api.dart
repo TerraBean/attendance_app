@@ -5,30 +5,30 @@ import 'package:http/http.dart' as http;
 
 class UserApi {
 // fetch users from the api
-  static Future<List<User>> fetchUsers() async {
-    final url = Uri.parse('https://user-data.up.railway.app/users');
-    final response = await http.get(url);
+  // static Future<List<User>> fetchUsers() async {
+  //   final url = Uri.parse('https://user-data.up.railway.app/users');
+  //   final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((user) => User.fromJson(user)).toList();
-    } else {
-      throw Exception('Failed to load users');
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     final List<dynamic> data = jsonDecode(response.body);
+  //     return data.map((user) => User.fromJson(user)).toList();
+  //   } else {
+  //     throw Exception('Failed to load users');
+  //   }
+  // }
 
-  // login user
-  static Future<User> fetchUser(String userId) async {
-    final url = Uri.parse('https://user-data.up.railway.app/users/$userId');
-    final response = await http.get(url);
+  // // login user
+  // static Future<User> fetchUser(String userId) async {
+  //   final url = Uri.parse('https://user-data.up.railway.app/users/$userId');
+  //   final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return User.fromJson(data);
-    } else {
-      throw Exception('Failed to load user');
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body);
+  //     return User.fromJson(data);
+  //   } else {
+  //     throw Exception('Failed to load user');
+  //   }
+  // }
 
   // login user
   static Future<LoginResponse> loginUser(

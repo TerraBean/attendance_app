@@ -3,11 +3,18 @@
 import 'package:attendance_app/screens/edit_profile.dart';
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/services/auth_services.dart';
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   // function to logout using AuthService logout function
   void logout() async {
     await AuthService().logout();
@@ -15,6 +22,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final firebaseService = Provider.of<FirestoreService>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -31,135 +40,139 @@ class ProfilePage extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/300'), // Replace with user's image URL
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Cory Joseph',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 5),
-            const Text(
-              'fred@hotmail.com',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to EditProfilePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditProfilePage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+      body: Consumer<FirestoreService>(
+        builder: (context, firebaseService, child) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(
+                      'https://i.pravatar.cc/300'), // Replace with user's image URL
                 ),
-              ),
-              child: const Text(
-                'Edit Profile',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 30),
-            ProfileDetail(title: 'STAFF ID', value: 'EE 224478'),
-            const Divider(),
-            ProfileDetail(title: 'SSNIT NUMBER', value: '2277 6466 357'),
-            const Divider(),
-            ProfileDetail(title: 'PHONE', value: '0244 464 678'),
-            const Divider(),
-            const SizedBox(height: 20),
-            InkWell(
-              onTap: () {
-                // Implement income history functionality
-              },
-              child: const Text(
-                'INCOME HISTORY',
-                style:
-                    TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 70),
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      title: Column(
-                        children: const [
-                          Icon(Icons.logout, size: 50, color: Colors.red),
-                          SizedBox(height: 10),
-                          Text(
-                            'Logout',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            // call logout function from authservice and navigate to LoginPage
-                            logout();
-                            // Use navigator to navigate to LoginPage
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Yes, logout',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Closes the dialog
-                          },
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
+                const SizedBox(height: 10),
+                Text(
+                  firebaseService.currentEmployee?.firstName ?? 'N/A',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  firebaseService.currentEmployee?.email ?? 'N/A',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to EditProfilePage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfilePage()),
                     );
                   },
-                );
-              },
-              child: const Text(
-                'LOG OUT',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Edit Profile',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ProfileDetail(title: 'STAFF ID', value: 'EE 224478'),
+                const Divider(),
+                ProfileDetail(title: 'SSNIT NUMBER', value: '2277 6466 357'),
+                const Divider(),
+                ProfileDetail(title: 'PHONE', value: '0244 464 678'),
+                const Divider(),
+                const SizedBox(height: 20),
+                InkWell(
+                  onTap: () {
+                    // Implement income history functionality
+                  },
+                  child: const Text(
+                    'INCOME HISTORY',
+                    style:
+                        TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 70),
+                InkWell(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          title: Column(
+                            children: const [
+                              Icon(Icons.logout, size: 50, color: Colors.red),
+                              SizedBox(height: 10),
+                              Text(
+                                'Logout',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          content: const Text('Are you sure you want to logout?'),
+                          actions: <Widget>[
+                            ElevatedButton(
+                              onPressed: () {
+                                // call logout function from authservice and navigate to LoginPage
+                                logout();
+                                // Use navigator to navigate to LoginPage
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginPage()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Yes, logout',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Closes the dialog
+                              },
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text(
+                    'LOG OUT',
+                    style:
+                        TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

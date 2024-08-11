@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:attendance_app/screens/admin/admin_dashboard.dart';
 import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/services/auth_services.dart';
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/utils/device_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +11,8 @@ import 'package:flutter/material.dart';
 class AuthViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final firebaseService = FirestoreService();
+
 
   String _email = '';
   String _password = '';
@@ -83,46 +88,50 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> login(BuildContext context) async {
-    if (formKey.currentState!.validate()) {
-      setIsLoading(true);
-      setMessage('');
+ Future<void> login(BuildContext context) async {
+  if (formKey.currentState!.validate()) {
+    setIsLoading(true);
+    setMessage('');
 
-      try {
-        // Call the login method from AuthService
-        User? user = await _authService.login(_email, _password, context);
+    try {
+      // Call the login method from AuthService
+      User? user = await _authService.login(_email, _password, context);
 
-        if (user != null) {
-          bool isAdmin = await _authService.isAdmin(user.uid);
+      if (user != null) {
+        bool isAdmin = await _authService.isAdmin(user.uid);
 
-          if (isAdmin) {
-            // Navigate to Admin Dashboard
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AdminDashboard(),
-              ),
-            );
-          } else {
-            // Navigate to HomeScreen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(
-                  username: _email,
-                  userId: user.uid,
-                ),
-              ),
-            );
-          }
+        // Call populateCurrentEmployee after successful login
+        await firebaseService.populateCurrentEmployee(context);
+
+        if (isAdmin) {
+          // Navigate to Admin Dashboard
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdminDashboard(),
+            ),
+          );
         } else {
-          setMessage('Login failed');
+          // Navigate to HomeScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(
+                username: _email,
+                userId: user.uid,
+              ),
+            ),
+          );
         }
-      } on Exception catch (error) {
-        setMessage(error.toString());
-      } finally {
-        setIsLoading(false);
+      } else {
+        setMessage('Login failed');
       }
+    } on Exception catch (error) {
+      setMessage(error.toString());
+    } finally {
+      setIsLoading(false);
     }
   }
+}
+
 }

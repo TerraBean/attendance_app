@@ -3,6 +3,7 @@
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/screens/my_profile.dart';
 import 'package:attendance_app/screens/settings_screen.dart';
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/widgets/center_location_display.dart';
 import 'package:attendance_app/widgets/clock_in_button.dart';
@@ -13,9 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String username;
   final String userId;
-  const HomeScreen({super.key, required this.username, required this.userId});
+  const HomeScreen({super.key, required this.userId});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -44,14 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Extract username from email
-    String displayedUsername = widget.username.split('@')[0].toUpperCase();
-
-    // Get the first letter of the username
-    String firstLetter = displayedUsername.substring(0, 1);
-
     return Scaffold(
-       appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Clock In/Out App'),
         actions: [
           // Add some spacing before the avatar
@@ -71,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircleAvatar(
                 backgroundColor: Colors.blue,
                 child: Text(
-                  firstLetter,
+                  Provider.of<FirestoreService>(context).currentEmployee?.firstName.substring(0, 1) ?? 'A', // Replace with the first letter of the username
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -83,17 +77,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Welcome, $displayedUsername!'), // Display only the username
-            const SizedBox(height: 20),
-            ClockInButton(),
-            SizedBox(height: 20),
-            ClockOutButton(),
-          ],
-        ),
+      body: Consumer<FirestoreService>(
+        builder: (context, firebaseService, child) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Welcome, ${firebaseService.currentEmployee?.firstName ?? 'User'}!',
+                  style: TextStyle(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                ClockInButton(),
+                SizedBox(height: 20),
+                ClockOutButton(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

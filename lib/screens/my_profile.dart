@@ -18,6 +18,12 @@ class _ProfilePageState extends State<ProfilePage> {
   // function to logout using AuthService logout function
   void logout() async {
     await AuthService().logout();
+    // After logout, navigate to LoginPage and remove all previous routes
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false, // Remove all routes until the root route
+    );
   }
 
   @override
@@ -130,11 +136,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 // call logout function from authservice and navigate to LoginPage
                                 logout();
                                 // Use navigator to navigate to LoginPage
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LoginPage()),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) => LoginPage()),
+                                // );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,

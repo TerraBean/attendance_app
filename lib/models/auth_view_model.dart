@@ -72,6 +72,9 @@ class AuthViewModel extends ChangeNotifier {
         await _authService.register(_email, _password, deviceInfo);
         setMessage('Registration successful!');
       } on FirebaseAuthException catch (e) {
+        print('printing e.code');
+        print(e.code);
+
         if (e.code == 'email-already-in-use') {
           setMessage(
               'An account with this email already exists. Please try logging in or using a different email.');
@@ -117,7 +120,6 @@ class AuthViewModel extends ChangeNotifier {
             context,
             MaterialPageRoute(
               builder: (context) => HomeScreen(
-                username: _email,
                 userId: user.uid,
               ),
             ),

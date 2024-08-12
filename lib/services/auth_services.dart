@@ -1,14 +1,16 @@
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/utils/device_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    Future<User?> login(String email, String password, BuildContext context) async {
+  Future<User?> login(String email, String password, BuildContext context) async {
     try {
       // Trim leading and trailing spaces from email before login
       email = email.trim();
@@ -41,6 +43,10 @@ class AuthService {
           'deviceId': deviceId // Store the device ID
         }, SetOptions(merge: true)); // Merge to avoid overwriting existing data
       }
+
+      // After successful login, populate currentEmployee
+      final firebaseService = Provider.of<FirestoreService>(context, listen: false);
+      await firebaseService.populateCurrentEmployee(context);
 
       return user;
     } on FirebaseAuthException catch (e) {

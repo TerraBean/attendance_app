@@ -1,7 +1,6 @@
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/utils/device_util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,36 +54,39 @@ class AuthService {
   }
 
 
- Future<UserCredential?> register(String email, String password, String deviceInfo) async {
-    try {
-      // Attempt to sign in with the provided email and password
-      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      // If sign-in succeeds, it means the user already exists
-      throw Exception('User with this email already exists.');
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        // If sign-in fails with 'user-not-found', proceed to create a new user
-        final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        User? user = credential.user;
+Future<UserCredential?> register(String firstName, String lastName, String email, String phoneNumber, String password, String deviceInfo) async {
+  try {
+    // Attempt to create a new user
+    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    User? user = credential.user;
 
-        // Add user data to Firestore
-        await _firestore.collection('users').doc(user!.uid).set({
-          'email': email,
-          'role': 'user', // Default role
-          'deviceId': deviceInfo
-        });
+    // Add user data to Firestore
+    await _firestore.collection('users').doc(user!.uid).set({
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phoneNumber': phoneNumber,
+      'role': 'user', // Default role
+      'deviceId': deviceInfo,
+    });
 
-        return credential;
-      } else {
-        // Handle other authentication errors
-        print('Error during registration: ${e.code}');
-        throw e;
-      }
+    return credential;
+  } on FirebaseAuthException catch (e) {
+    // Handle specific error codes
+    if (e.code == 'email-already-in-use') {
+      throw Exception('An account with this email already exists');
+    } else {
+      print('Error during registration: ${e.code}');
+      throw Exception('Registration failed. Please try again later.');
     }
   }
+}
+
+
+
 
   Future<bool> isAdmin(String uid) async {
     try {

@@ -13,7 +13,6 @@ class LogoutConfirmationDialog extends StatefulWidget {
 
 class _LogoutConfirmationDialogState
     extends State<LogoutConfirmationDialog> {
-  bool _logoutFromAllDevices = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +62,6 @@ class _LogoutConfirmationDialogState
                 child: ElevatedButton(
                   onPressed: () {
                     // Call the onConfirmLogout callback
-                    print('confirmed');
                     Navigator.of(context).pop();
                     widget.onConfirmLogout();
                      // Close the dialog

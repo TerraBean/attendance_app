@@ -1,15 +1,15 @@
-import 'package:attendance_app/services/radius_service.dart';
 import 'package:attendance_app/widgets/radius_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
-      body: RadiusSettings(),
+      body: const RadiusSettings(),
     );
   }
 }

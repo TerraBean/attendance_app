@@ -151,6 +151,43 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
+// ... (Existing code in FirestoreService)
+
+ Future<void> updateUser(
+     String? uid, String firstName, String lastName, String? email, String phoneNumber) async {
+   try {
+     // Update the user document in Firestore
+     await _db.collection('users').doc(uid).update({
+       'firstName': firstName,
+       'lastName': lastName,
+       'email': email,
+       'phoneNumber': phoneNumber,
+     });
+ 
+     // Update the local cache if necessary
+     if (_employeeCache.containsKey(uid)) {
+       _employeeCache[uid]!.update('firstName', (value) => firstName);
+       _employeeCache[uid]!.update('lastName', (value) => lastName);
+       _employeeCache[uid]!.update('email', (value) => email);
+       _employeeCache[uid]!.update('phoneNumber', (value) => phoneNumber);
+       notifyListeners();
+     }
+ 
+     // Update the _currentEmployee if the updated user is the current user
+     if (_currentEmployee?.uid == uid) {
+       _currentEmployee!.firstName = firstName; // Now you can assign a new value
+       _currentEmployee!.lastName = lastName; // Now you can assign a new value
+       _currentEmployee!.email = email;
+       _currentEmployee!.phoneNumber = phoneNumber;
+       notifyListeners();
+     }
+   } catch (e) {
+     print('Error updating user: $e');
+   }
+ }
+ 
+
+
   Future<void> clockOut(BuildContext context) async {
     try {
       User? user = _auth.currentUser;

@@ -18,6 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // function to logout using AuthService logout function
   void logout() async {
     await AuthService().logout();
+      if (!context.mounted) return;
     // After logout, navigate to LoginPage and remove all previous routes
     Navigator.pushAndRemoveUntil(
       context,
@@ -28,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseService = Provider.of<FirestoreService>(context);
+    Provider.of<FirestoreService>(context);
 
     return Scaffold(
       appBar: AppBar(

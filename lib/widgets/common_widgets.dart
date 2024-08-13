@@ -4,42 +4,40 @@ import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
   final String hintText;
-  final bool obscureText;
-  final Function(String) onChanged;
+  final String labelText;
+  final TextEditingController? controller; // Add the controller parameter
+  final Function(String)? onChanged;
   final String? Function(String?)? validator;
-  final IconData? prefixIcon;
+  final IconData prefixIcon;
+  final TextInputType? keyboardType;
 
   const InputField({
     Key? key,
     required this.hintText,
-    this.obscureText = false,
-    required this.onChanged,
+    required this.labelText,
+    this.controller, // Make the controller optional
+    this.onChanged,
     this.validator,
-    this.prefixIcon,
+    required this.prefixIcon,
+    this.keyboardType,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: TextFormField(
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          hintText: hintText,
-          filled: true,
-          fillColor: Colors.grey[200],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          prefixIcon: Icon(prefixIcon, color: Colors.grey),
-        ),
-        validator: validator,
-        onChanged: onChanged,
+    return TextFormField(
+      controller: controller, // Use the controller here
+      decoration: InputDecoration(
+        hintText: hintText,
+        labelText: labelText,
+        prefixIcon: Icon(prefixIcon),
       ),
+      onChanged: onChanged,
+      validator: validator,
+      keyboardType: keyboardType,
     );
   }
 }
+
 
 class AuthButton extends StatelessWidget {
   final String text;

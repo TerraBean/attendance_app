@@ -1,7 +1,6 @@
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/widgets/admin_card.dart';
 import 'package:flutter/material.dart';
-import 'package:attendance_app/services/user_api.dart';
 import 'package:provider/provider.dart'; // Import Provider
 
 class AdminDashboard extends StatefulWidget {
@@ -13,8 +12,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _totalEmployees = 0;
-  int _totalClockedIn = 0;
-  int _totalClockedOut = 0;
+  final int _totalClockedIn = 0;
   bool _isLoading = true;
 
   @override
@@ -34,7 +32,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _isLoading = false;
       });
     } catch (error) {
-      print('Error fetching users: $error');
       setState(() {
         _isLoading = false;
       });

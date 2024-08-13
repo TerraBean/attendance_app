@@ -13,10 +13,12 @@ class AuthViewModel extends ChangeNotifier {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final firebaseService = FirestoreService();
 
-
+  String _firstName = '';
+  String _lastName = '';
   String _email = '';
   String _password = '';
   String _confirmPassword = '';
+  String _phoneNumber = '';
   String _message = '';
   bool _isLoading = false;
 
@@ -25,9 +27,25 @@ class AuthViewModel extends ChangeNotifier {
   String get confirmPassword => _confirmPassword;
   String get message => _message;
   bool get isLoading => _isLoading;
+  String get firstName => _firstName;
+  String get lastName => _lastName;
+
+  void setFirstName(String value) {
+    _firstName = value.trim(); // Trim trailing spaces
+    notifyListeners();
+  }
+
+  void setLastName(String value) {
+    _lastName = value.trim(); // Trim trailing spaces
+    notifyListeners();
+  }
 
   void setEmail(String value) {
-    _email = value;
+    _email = value.trim(); // Trim trailing spaces
+    notifyListeners();
+  }
+  void setPhoneNumber(String value) {
+    _phoneNumber = value.trim();
     notifyListeners();
   }
 
@@ -52,88 +70,76 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<void> register(BuildContext context) async {
-    if (formKey.currentState!.validate()) {
-      if (_password != _confirmPassword) {
-        setMessage('Passwords do not match');
-        return;
-      }
-
-      setIsLoading(true);
-      setMessage('');
-
-      try {
-        // Get device information
-        final deviceInfo = await DeviceUtils.getDeviceId(context);
-        if (deviceInfo == null) {
-          throw Exception('Failed to get device information.');
-        }
-
-        // Call the registration method from AuthService
-        await _authService.register(_email, _password, deviceInfo);
-        setMessage('Registration successful!');
-      } on FirebaseAuthException catch (e) {
-        print('printing e.code');
-        print(e.code);
-
-        if (e.code == 'email-already-in-use') {
-          setMessage(
-              'An account with this email already exists. Please try logging in or using a different email.');
-        } else {
-          setMessage(
-              'An error occurred during registration. Please try again later.');
-        }
-      } catch (error) {
-        setMessage(
-            'An error occurred during registration. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  }
-
- Future<void> login(BuildContext context) async {
   if (formKey.currentState!.validate()) {
+    if (_password != _confirmPassword) {
+      setMessage('Passwords do not match');
+      return;
+    }
+
     setIsLoading(true);
     setMessage('');
 
     try {
-      // Call the login method from AuthService
-      User? user = await _authService.login(_email, _password, context);
-
-      if (user != null) {
-        bool isAdmin = await _authService.isAdmin(user.uid);
-
-        // Call populateCurrentEmployee after successful login
-        await firebaseService.populateCurrentEmployee(context);
-
-        if (isAdmin) {
-          // Navigate to Admin Dashboard
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdminDashboard(),
-            ),
-          );
-        } else {
-          // Navigate to HomeScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(
-                userId: user.uid,
-              ),
-            ),
-          );
-        }
-      } else {
-        setMessage('Login failed');
+      // Get device information
+      final deviceInfo = await DeviceUtils.getDeviceId(context);
+      if (deviceInfo == null) {
+        throw Exception('Failed to get device information.');
       }
+
+      // Call the registration method from AuthService
+      await _authService.register(_firstName, _lastName, _email, _phoneNumber, _password, deviceInfo);
+      setMessage('Registration successful!');
     } on Exception catch (error) {
-      setMessage(error.toString());
+      setMessage(error.toString().replaceAll("Exception:", "")); // Display the specific error message
     } finally {
       setIsLoading(false);
     }
   }
 }
 
+
+  Future<void> login(BuildContext context) async {
+    if (formKey.currentState!.validate()) {
+      setIsLoading(true);
+      setMessage('');
+
+      try {
+        // Call the login method from AuthService
+        User? user = await _authService.login(_email, _password, context);
+
+        if (user != null) {
+          bool isAdmin = await _authService.isAdmin(user.uid);
+
+          // Call populateCurrentEmployee after successful login
+          await firebaseService.populateCurrentEmployee(context);
+
+          if (isAdmin) {
+            // Navigate to Admin Dashboard
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminDashboard(),
+              ),
+            );
+          } else {
+            // Navigate to HomeScreen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(
+                  userId: user.uid,
+                ),
+              ),
+            );
+          }
+        } else {
+          setMessage('Login failed');
+        }
+      } on Exception catch (error) {
+        setMessage(error.toString());
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }
 }

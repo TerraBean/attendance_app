@@ -55,17 +55,21 @@ class LoginResponse {
 }
 
 class Employee {
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String role;
-  final String deviceId;
-  final String? staffNumber; // Staff number can be null
+    String? uid; // Add the uid field
+  String? email;
+  String? firstName;
+  String? lastName;
+  String? phoneNumber;
+  String? role;
+  String? deviceId;
+  String? staffNumber; // Staff number can be null
 
   Employee({
+    this.uid,
     required this.email,
     required this.firstName,
     required this.lastName,
+    this.phoneNumber,
     required this.role,
     required this.deviceId,
     this.staffNumber,
@@ -74,9 +78,11 @@ class Employee {
   // Factory constructor to create an Employee from a Map
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
+      uid: json['uid'],
       email: json['email'],
       firstName: json['firstName'],
       lastName: json['lastName'],
+      phoneNumber: json['phoneNumber'],
       role: json['role'],
       deviceId: json['deviceId'],
       staffNumber: json['staffNumber'], // Handle null staffNumber
@@ -86,9 +92,11 @@ class Employee {
   // Method to convert Employee to a Map
   Map<String, dynamic> toJson() {
     return {
+      'uid': uid,
       'email': email,
       'firstName': firstName,
       'lastName': lastName,
+      'phoneNumber': phoneNumber,
       'role': role,
       'deviceId': deviceId,
       'staffNumber': staffNumber,

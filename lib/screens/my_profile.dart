@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:attendance_app/screens/edit_profile.dart';
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/services/auth_services.dart';
@@ -18,7 +16,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // function to logout using AuthService logout function
   void logout() async {
     await AuthService().logout();
-      if (!context.mounted) return;
+    if (!context.mounted) return;
     // After logout, navigate to LoginPage and remove all previous routes
     Navigator.pushAndRemoveUntil(
       context,
@@ -49,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Consumer<FirestoreService>(
         builder: (context, firebaseService, child) {
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -62,7 +60,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 10),
                 Text(
                   firebaseService.currentEmployee?.firstName ?? 'N/A',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -75,13 +74,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Navigate to EditProfilePage
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EditProfilePage()),
+                      MaterialPageRoute(
+                          builder: (context) => EditProfilePage()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -92,11 +92,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ProfileDetail(title: 'STAFF ID', value: 'EE 224478'),
+                ProfileDetail(
+                    title: 'FIRST NAME',
+                    value: firebaseService.currentEmployee!.firstName.toString()),
                 const Divider(),
-                ProfileDetail(title: 'SSNIT NUMBER', value: '2277 6466 357'),
+                ProfileDetail(
+                    title: 'LAST NAME',
+                    value: firebaseService.currentEmployee!.lastName.toString()),
                 const Divider(),
-                ProfileDetail(title: 'PHONE', value: '0244 464 678'),
+                ProfileDetail(
+                  title: 'PHONE',
+                  value: firebaseService.currentEmployee!.phoneNumber != null
+                      ? firebaseService.currentEmployee!.phoneNumber.toString()
+                      : '#000 000 0000',
+                ),
                 const Divider(),
                 const SizedBox(height: 20),
                 InkWell(
@@ -105,8 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: const Text(
                     'INCOME HISTORY',
-                    style:
-                        TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.green, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 70),
@@ -121,27 +130,24 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           title: Column(
                             children: const [
-                              Icon(Icons.logout, size: 50, color: Colors.red),
+                              Icon(Icons.logout,
+                                  size: 50, color: Colors.red),
                               SizedBox(height: 10),
                               Text(
                                 'Logout',
                                 style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                          content: const Text('Are you sure you want to logout?'),
+                          content: const Text(
+                              'Are you sure you want to logout?'),
                           actions: <Widget>[
                             ElevatedButton(
                               onPressed: () {
                                 // call logout function from authservice and navigate to LoginPage
                                 logout();
-                                // Use navigator to navigate to LoginPage
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) => LoginPage()),
-                                // );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
@@ -158,7 +164,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pop(); // Closes the dialog
+                                Navigator.of(context)
+                                    .pop(); // Closes the dialog
                               },
                               child: const Text(
                                 'Cancel',
@@ -172,8 +179,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: const Text(
                     'LOG OUT',
-                    style:
-                        TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -204,7 +211,8 @@ class ProfileDetail extends StatelessWidget {
           ),
           Text(
             value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
       ),

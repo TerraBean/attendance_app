@@ -11,7 +11,7 @@ class FirestoreService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Cache for employee data
-  Map<String, Map<String, dynamic>> _employeeCache = {};
+  final Map<String, Map<String, dynamic>> _employeeCache = {};
 
   Map<String, Map<String, dynamic>> get employeeCache => _employeeCache;
 
@@ -136,6 +136,8 @@ class FirestoreService extends ChangeNotifier {
           // Test if _currentEmployee was populated
         if (_currentEmployee != null) {
           print('Current employee populated successfully!');
+          // print currentemployee id
+          print('Current Employee ID: ${user.uid}');
           print('First Name: ${_currentEmployee!.firstName}');
           print('Last Name: ${_currentEmployee!.lastName}');
           // Add more properties to check as needed
@@ -154,21 +156,26 @@ class FirestoreService extends ChangeNotifier {
 // ... (Existing code in FirestoreService)
 
  Future<void> updateUser(
-     String? uid, String firstName, String lastName, String? email, String phoneNumber) async {
+     String?  uid, String firstName, String lastName, String phoneNumber) async {
    try {
+    User? user = _auth.currentUser;
+    // print currentemployee
+    print('Current Employee: ${_currentEmployee!.firstName} ${_currentEmployee!.lastName}');
+    //print currentemployee id
+    print('Current Employee ID: ${user?.uid}');
      // Update the user document in Firestore
-     await _db.collection('users').doc(uid).update({
+     print('updating..');
+     await _db.collection('users').doc(user?.uid).update({
        'firstName': firstName,
        'lastName': lastName,
-       'email': email,
        'phoneNumber': phoneNumber,
      });
+     
  
      // Update the local cache if necessary
      if (_employeeCache.containsKey(uid)) {
        _employeeCache[uid]!.update('firstName', (value) => firstName);
        _employeeCache[uid]!.update('lastName', (value) => lastName);
-       _employeeCache[uid]!.update('email', (value) => email);
        _employeeCache[uid]!.update('phoneNumber', (value) => phoneNumber);
        notifyListeners();
      }
@@ -177,7 +184,6 @@ class FirestoreService extends ChangeNotifier {
      if (_currentEmployee?.uid == uid) {
        _currentEmployee!.firstName = firstName; // Now you can assign a new value
        _currentEmployee!.lastName = lastName; // Now you can assign a new value
-       _currentEmployee!.email = email;
        _currentEmployee!.phoneNumber = phoneNumber;
        notifyListeners();
      }

@@ -10,6 +10,7 @@ class InputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final IconData prefixIcon;
   final TextInputType? keyboardType;
+  final bool obscureText;
 
   const InputField({
     Key? key,
@@ -20,6 +21,7 @@ class InputField extends StatelessWidget {
     this.validator,
     required this.prefixIcon,
     this.keyboardType,
+    this.obscureText = false,
   }) : super(key: key);
 
   @override
@@ -34,6 +36,7 @@ class InputField extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       keyboardType: keyboardType,
+      obscureText: obscureText,
     );
   }
 }

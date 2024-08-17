@@ -46,6 +46,7 @@ class AuthService {
       // After successful login, populate currentEmployee
       final firebaseService = Provider.of<FirestoreService>(context, listen: false);
       await firebaseService.populateCurrentEmployee(context);
+      
 
       return user;
     } on FirebaseAuthException catch (e) {

@@ -1,4 +1,3 @@
-
 // class User{
 
 //   final String username;
@@ -15,7 +14,9 @@
 //   }
 // }
 
-class Admin{
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Admin {
   final String username;
   final String password;
 
@@ -29,21 +30,19 @@ class Admin{
   }
 }
 
-
-class UserOnline{
+class UserOnline {
   final String username;
   final String password;
 
-  UserOnline({required this.username,required this.password});
+  UserOnline({required this.username, required this.password});
 }
-
 
 class LoginResponse {
   final String message;
   final String userId;
   final Map<String, dynamic>? user; // Assuming user object structure
 
-  LoginResponse({required this.message,required this.userId, this.user});
+  LoginResponse({required this.message, required this.userId, this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
@@ -55,7 +54,7 @@ class LoginResponse {
 }
 
 class Employee {
-    String? uid; // Add the uid field
+  String? uid; // Add the uid field
   String? email;
   String? firstName;
   String? lastName;
@@ -63,6 +62,7 @@ class Employee {
   String? role;
   String? deviceId;
   String? staffNumber; // Staff number can be null
+  List<TimeEntry>? timeEntries;
 
   Employee({
     this.uid,
@@ -73,6 +73,7 @@ class Employee {
     required this.role,
     required this.deviceId,
     this.staffNumber,
+    this.timeEntries,
   });
 
   // Factory constructor to create an Employee from a Map
@@ -86,6 +87,10 @@ class Employee {
       role: json['role'],
       deviceId: json['deviceId'],
       staffNumber: json['staffNumber'], // Handle null staffNumber
+      // initialize timeEntries from the 'timeEntries' list in the JSON
+      timeEntries: (json['timeEntries'] as List<dynamic>?)
+          ?.map((e) => TimeEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -100,6 +105,39 @@ class Employee {
       'role': role,
       'deviceId': deviceId,
       'staffNumber': staffNumber,
+      'timeEntries': timeEntries?.map((timeEntry) => timeEntry.toJson()).toList(),
+    };
+  }
+}
+
+class TimeEntry {
+  String? id;
+  DateTime? clockedIn;
+  DateTime? clockedOut;
+  DateTime? date;
+
+  TimeEntry({
+    this.id,
+    this.clockedIn,
+    this.clockedOut,
+    this.date,
+  });
+
+  // Constructor to create a TimeEntry object from a Map
+  TimeEntry.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    clockedIn = (json['clockedIn'] as Timestamp?)?.toDate();
+    clockedOut = (json['clockedOut'] as Timestamp?)?.toDate();
+    date = (json['date'] as Timestamp?)?.toDate();
+  }
+
+  // Method to convert TimeEntry object to a Map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'clockedIn': clockedIn,
+      'clockedOut': clockedOut,
+      'date': date,
     };
   }
 }

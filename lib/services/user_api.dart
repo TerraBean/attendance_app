@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:attendance_app/models/timeentry.dart';
 import 'package:attendance_app/models/user_info.dart';
 import 'package:http/http.dart' as http;
 

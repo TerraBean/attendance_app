@@ -18,6 +18,8 @@ class FirestoreService extends ChangeNotifier {
 
   Map<String, List<Map<String, dynamic>>> _timeEntriesByUser = {};
 
+
+
  
   Future<List<Employee>> getEmployees() async { // Return List<Employee>
     try {
@@ -195,8 +197,6 @@ class FirestoreService extends ChangeNotifier {
    }
  }
  
-
-
   Future<void> clockOut(BuildContext context) async {
     try {
       User? user = _auth.currentUser;
@@ -390,4 +390,65 @@ class FirestoreService extends ChangeNotifier {
       return [];
     }
   }
+
+Future<List<Map<String, dynamic>>> weekAttendance() async {
+  List<Map<String, dynamic>> usersWithTimeEntries = [];
+
+  try {
+    // Get the current date and calculate the start (Monday) and end (Friday) of the current week
+    DateTime now = DateTime.now();
+    DateTime monday = now.subtract(Duration(days: now.weekday - 1));
+    DateTime friday = monday.add(const Duration(days: 4));
+    
+    // Set the time of both monday and friday to the start of the day
+    monday = DateTime(monday.year, monday.month, monday.day, 0, 0, 0);
+    friday = DateTime(friday.year, friday.month, friday.day, 23, 59, 59);
+
+    // Get all users from the 'users' collection
+    QuerySnapshot usersSnapshot = await _db.collection('users').get();
+
+    // Iterate through each user document
+    for (var userDoc in usersSnapshot.docs) {
+      // Get the user's ID
+      String userId = userDoc.id;
+
+      // Get the user's data
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+      // Get the time entries for the user within the current week
+      QuerySnapshot timeEntriesSnapshot = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('timeEntries')
+          .where('date', isGreaterThanOrEqualTo: monday)
+          .where('date', isLessThanOrEqualTo: friday)
+          .get();
+
+      // Create a list to store the time entries
+      List<Map<String, dynamic>> timeEntries = [];
+
+      // Iterate through each time entry document
+      for (var timeEntryDoc in timeEntriesSnapshot.docs) {
+        // Get the time entry data
+        Map<String, dynamic> timeEntryData = timeEntryDoc.data() as Map<String, dynamic>;
+
+        // Add the time entry data to the list
+        timeEntries.add(timeEntryData);
+      }
+
+      // Add the user data and time entries to the list only if there are time entries
+      if (timeEntries.isNotEmpty) {
+        usersWithTimeEntries.add({
+          'user': userData,
+          'timeEntries': timeEntries,
+        });
+      }
+    }
+
+    return usersWithTimeEntries;
+  } catch (e) {
+    print('Error fetching users with time entries for the current week: $e');
+    return [];
+  }
+}
 }

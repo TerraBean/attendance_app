@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+
+class AttendanceTable extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300, // Background color
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'This week',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(3), // Adjust the width of the first column
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(1),
+                3: FlexColumnWidth(1),
+                4: FlexColumnWidth(1),
+                5: FlexColumnWidth(1),
+              },
+              children: [
+                TableRow(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Days', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('M', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('T', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('W', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('T', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('F', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                _buildTableRow('Adams Mujahid', [true, false, true, true, false]),
+                _buildTableRow('Linda Adu', [false, true, true, true, false]),
+                _buildTableRow('Ernest Adjei', [true, false, false, false, true]),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildTableRow(String name, List<bool> attendance) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(name),
+        ),
+        for (bool present in attendance)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              present ? Icons.check_circle : Icons.cancel,
+              color: present ? Colors.green : Colors.red,
+            ),
+          ),
+      ],
+    );
+  }
+}

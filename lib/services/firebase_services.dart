@@ -11,24 +11,26 @@ class FirestoreService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Cache for employee data
-  final Map<String, Map<String, dynamic>> _employeeCache = {};
+  // Cache for employee data
+  final Map<String, Employee> _employeeCache = {}; // Use Employee object
 
-  Map<String, Map<String, dynamic>> get employeeCache => _employeeCache;
+  Map<String, Employee> get employeeCache => _employeeCache;
 
   Map<String, List<Map<String, dynamic>>> _timeEntriesByUser = {};
 
-  Future<List<Map<String, dynamic>>> getEmployees() async {
+ 
+  Future<List<Employee>> getEmployees() async { // Return List<Employee>
     try {
       if (_employeeCache.isEmpty) {
         // Get all users from the 'users' collection
         QuerySnapshot snapshot = await _db.collection('users').get();
 
-        // Extract user data from the snapshot and store in cache
+        // Extract user data from the snapshot and store in cache using Employee object
         for (var doc in snapshot.docs) {
-          _employeeCache[doc.id] = doc.data() as Map<String, dynamic>;
+          _employeeCache[doc.id] = Employee.fromJson(doc.data() as Map<String, dynamic>); // Use Employee.fromJson
         }
       }
-      return _employeeCache.values.toList();
+      return _employeeCache.values.toList(); // Return List<Employee>
     } catch (e) {
       print('Error getting registered accounts: $e');
       return [];
@@ -172,11 +174,12 @@ class FirestoreService extends ChangeNotifier {
      });
      
  
-     // Update the local cache if necessary
+     // Update the local employeeCache if necessary
      if (_employeeCache.containsKey(uid)) {
-       _employeeCache[uid]!.update('firstName', (value) => firstName);
-       _employeeCache[uid]!.update('lastName', (value) => lastName);
-       _employeeCache[uid]!.update('phoneNumber', (value) => phoneNumber);
+       _employeeCache[uid]!.firstName = firstName;
+       _employeeCache[uid]!.lastName = lastName;
+       _employeeCache[uid]!.phoneNumber = phoneNumber;
+
        notifyListeners();
      }
  
@@ -334,6 +337,57 @@ class FirestoreService extends ChangeNotifier {
       }
     } catch (e) {
       print('Error updating radius: $e');
+    }
+  }
+
+
+
+   Future<List<Map<String, dynamic>>> fetchUsersWithTimeEntries() async {
+    List<Map<String, dynamic>> usersWithTimeEntries = [];
+
+    try {
+      // Get all users from the 'users' collection
+      QuerySnapshot usersSnapshot = await _db.collection('users').get();
+
+      // Iterate through each user document
+      for (var userDoc in usersSnapshot.docs) {
+        // Get the user's ID
+        String userId = userDoc.id;
+
+        // Get the user's data
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+        // Get the time entries for the user
+        QuerySnapshot timeEntriesSnapshot = await _db
+            .collection('users')
+            .doc(userId)
+            .collection('timeEntries')
+            .get();
+
+        // Create a list to store the time entries
+        List<Map<String, dynamic>> timeEntries = [];
+
+        // Iterate through each time entry document
+        for (var timeEntryDoc in timeEntriesSnapshot.docs) {
+          // Get the time entry data
+          Map<String, dynamic> timeEntryData =
+              timeEntryDoc.data() as Map<String, dynamic>;
+
+          // Add the time entry data to the list
+          timeEntries.add(timeEntryData);
+        }
+
+        // Add the user data and time entries to the list
+        usersWithTimeEntries.add({
+          'user': userData,
+          'timeEntries': timeEntries,
+        });
+      }
+
+      return usersWithTimeEntries;
+    } catch (e) {
+      print('Error fetching users with time entries: $e');
+      return [];
     }
   }
 }

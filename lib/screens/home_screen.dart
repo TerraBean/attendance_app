@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/screens/my_profile.dart';
@@ -6,6 +6,7 @@ import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';
 import 'package:attendance_app/widgets/clock_in_button.dart';
 import 'package:attendance_app/widgets/clock_out_button.dart';
+import 'package:attendance_app/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,29 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 16), // Adjust the width as needed
 
           // Wrap the CircleAvatar in a GestureDetector to handle taps
-          GestureDetector(
-            onTap: () {
-              // Navigate to ProfilePage when the avatar is tapped
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: Text(
-                  Provider.of<FirestoreService>(context).currentEmployee!.firstName?.substring(0, 1) ?? 'A', // Replace with the first letter of the username
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          ProfileAvatar(),
         ],
       ),
       body: Consumer<FirestoreService>(
@@ -95,3 +74,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+

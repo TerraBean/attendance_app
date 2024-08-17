@@ -3,6 +3,7 @@
 import 'package:attendance_app/screens/admin/admin_dashboard.dart';
 import 'package:attendance_app/screens/admin/admin_employee_management.dart';
 import 'package:attendance_app/screens/admin/admin_settings.dart';
+import 'package:attendance_app/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 
 class Admin extends StatefulWidget {
@@ -30,6 +31,10 @@ class _AdminState extends State<Admin> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Navigation'),
+        actions: [
+          SizedBox(width: 16,),
+          ProfileAvatar()
+        ],
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

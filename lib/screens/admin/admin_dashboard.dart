@@ -1,5 +1,6 @@
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/widgets/admin_card.dart';
+import 'package:attendance_app/widgets/attendance_table';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
 
@@ -77,6 +78,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               // ... (Other widgets)
             ],
           ),
+          AttendanceTable()
         ],
       ),
     );

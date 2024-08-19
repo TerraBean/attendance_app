@@ -444,11 +444,13 @@ Future<List<Map<String, dynamic>>> weekAttendance() async {
         });
       }
     }
-
+print('Printing week attendance..................');
+print(usersWithTimeEntries);
     return usersWithTimeEntries;
   } catch (e) {
     print('Error fetching users with time entries for the current week: $e');
     return [];
   }
 }
+
 }

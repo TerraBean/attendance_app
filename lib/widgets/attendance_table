@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AttendanceTable extends StatefulWidget {
   @override
@@ -16,10 +17,7 @@ class _AttendanceTableState extends State<AttendanceTable> {
 
   Future<void> _fetchAttendanceData() async {
     // Fetch data from fetchUsersWithTimeEntriesForCurrentWeek
-    // This function should return a list of maps, where each map contains
-    // a 'name' and a 'timeEntries' (a list of DateTimes for the current week)
     List<Map<String, dynamic>> data = await fetchUsersWithTimeEntriesForCurrentWeek();
-
     setState(() {
       usersWithAttendance = data;
     });
@@ -96,8 +94,8 @@ class _AttendanceTableState extends State<AttendanceTable> {
     ];
 
     for (var user in usersWithAttendance) {
-      String name = user['name'];
-      List<DateTime> timeEntries = user['timeEntries'];
+      String name = '${user['user']['firstName']} ${user['user']['lastName']}';
+      List<Map<String, dynamic>> timeEntries = user['timeEntries'];
 
       rows.add(_buildTableRow(name, timeEntries));
     }
@@ -105,7 +103,7 @@ class _AttendanceTableState extends State<AttendanceTable> {
     return rows;
   }
 
-  TableRow _buildTableRow(String name, List<DateTime> timeEntries) {
+  TableRow _buildTableRow(String name, List<Map<String, dynamic>> timeEntries) {
     List<Widget> rowCells = [
       Padding(
         padding: const EdgeInsets.all(8.0),
@@ -118,103 +116,252 @@ class _AttendanceTableState extends State<AttendanceTable> {
 
     for (int i = 0; i < 5; i++) {
       DateTime day = monday.add(Duration(days: i));
-      bool present = timeEntries.any((entry) =>
-          entry.year == day.year &&
-          entry.month == day.month &&
-          entry.day == day.day);
+      DateTime cutoffTime = DateTime(day.year, day.month, day.day, 17, 0); // 5:00 PM
 
-      rowCells.add(
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(
-            present ? Icons.check_circle : Icons.cancel,
-            color: present ? Colors.green : Colors.red,
-          ),
-        ),
-      );
+      Widget icon;
+      if (now.isBefore(day)) {
+        icon = Icon(Icons.access_time, color: Colors.grey); // Clock icon for future days
+      } else if (timeEntries.any((entry) =>
+          entry['date'].toDate().year == day.year &&
+          entry['date'].toDate().month == day.month &&
+          entry['date'].toDate().day == day.day)) {
+        icon = Icon(Icons.circle, color: Colors.green); // Green circle for clocked in
+      } else if (now.isAfter(cutoffTime)) {
+        icon = Icon(Icons.circle, color: Colors.red); // Red circle for missing clock-in after 5:00 PM
+      } else {
+        icon = Icon(Icons.access_time, color: Colors.grey); // Clock icon for future days
+      }
+
+      rowCells.add(Padding(padding: const EdgeInsets.all(8.0), child: icon));
     }
 
     return TableRow(children: rowCells);
   }
-
-  Future<List<Map<String, dynamic>>> fetchUsersWithTimeEntriesForCurrentWeek() async {
+Future<List<Map<String, dynamic>>> fetchUsersWithTimeEntriesForCurrentWeek() async {
   return [
     {
-      'name': 'Adams Mujahid',
+      'user': {
+        'firstName': 'David',
+        'lastName': 'Acheampong',
+        'phoneNumber': '022436595',
+        'role': 'user',
+        'deviceId': 'HONORCRT-N31',
+        'email': 'kokot@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 3)), // 3 days ago
-        DateTime.now().subtract(Duration(days: 5)), // 5 days ago
+        {
+          'date': Timestamp(1724051033, 360000000), // Monday
+          'clockedOut': Timestamp(1724051038, 437000000),
+          'clockedIn': Timestamp(1724051034, 981000000),
+        },
       ],
     },
     {
-      'name': 'Linda Adu',
+      'user': {
+        'firstName': 'Linda',
+        'lastName': 'Baidoo',
+        'phoneNumber': '027859851',
+        'role': 'user',
+        'deviceId': 'HONORCRT-N31',
+        'email': 'linda@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now(), // Today
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
-        DateTime.now().subtract(Duration(days: 4)), // 4 days ago
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
+        {
+          'date': Timestamp(1724223833, 360000000), // Wednesday
+          'clockedOut': Timestamp(1724223838, 437000000),
+          'clockedIn': Timestamp(1724223834, 981000000),
+        },
       ],
     },
     {
-      'name': 'Ernest Adjei',
+      'user': {
+        'firstName': 'Ernest',
+        'lastName': 'Adjei',
+        'phoneNumber': '0247896321',
+        'role': 'user',
+        'deviceId': 'SAMSUNGGalaxyA12',
+        'email': 'ernest@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
+        {
+          'date': Timestamp(1724310233, 360000000), // Thursday
+          'clockedOut': Timestamp(1724310238, 437000000),
+          'clockedIn': Timestamp(1724310234, 981000000),
+        },
       ],
     },
     {
-      'name': 'Grace Yeboah',
+      'user': {
+        'firstName': 'Jennifer',
+        'lastName': 'Owusu',
+        'phoneNumber': '0501234567',
+        'role': 'user',
+        'deviceId': 'XIAOMIMiNote10',
+        'email': 'jennifer@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now(), // Today
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
-        DateTime.now().subtract(Duration(days: 3)), // 3 days ago
-        DateTime.now().subtract(Duration(days: 4)), // 4 days ago
+        {
+          'date': Timestamp(1724051033, 360000000), // Monday
+          'clockedOut': Timestamp(1724051038, 437000000),
+          'clockedIn': Timestamp(1724051034, 981000000),
+        },
+        {
+          'date': Timestamp(1724223833, 360000000), // Wednesday
+          'clockedOut': Timestamp(1724223838, 437000000),
+          'clockedIn': Timestamp(1724223834, 981000000),
+        },
       ],
     },
     {
-      'name': 'Samuel Owusu',
+      'user': {
+        'firstName': 'Michael',
+        'lastName': 'Asante',
+        'phoneNumber': '0209876543',
+        'role': 'user',
+        'deviceId': 'TECNO-CAMON12',
+        'email': 'michael@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
-        DateTime.now().subtract(Duration(days: 3)), // 3 days ago
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
+        {
+          'date': Timestamp(1724310233, 360000000), // Thursday
+          'clockedOut': Timestamp(1724310238, 437000000),
+          'clockedIn': Timestamp(1724310234, 981000000),
+        },
       ],
     },
     {
-      'name': 'Patricia Mensah',
+      'user': {
+        'firstName': 'Sophia',
+        'lastName': 'Adomako',
+        'phoneNumber': '0241122334',
+        'role': 'user',
+        'deviceId': 'INFINIX-HOT8',
+        'email': 'sophia@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now(), // Today
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
+        {
+          'date': Timestamp(1724051033, 360000000), // Monday
+          'clockedOut': Timestamp(1724051038, 437000000),
+          'clockedIn': Timestamp(1724051034, 981000000),
+        },
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
+        {
+          'date': Timestamp(1724310233, 360000000), // Thursday
+          'clockedOut': Timestamp(1724310238, 437000000),
+          'clockedIn': Timestamp(1724310234, 981000000),
+        },
       ],
     },
     {
-      'name': 'John Doe',
+      'user': {
+        'firstName': 'Kojo',
+        'lastName': 'Mensah',
+        'phoneNumber': '0556677889',
+        'role': 'user',
+        'deviceId': 'ITEL-Vision1Pro',
+        'email': 'kojo@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 3)), // 3 days ago
+        {
+          'date': Timestamp(1724223833, 360000000), // Wednesday
+          'clockedOut': Timestamp(1724223838, 437000000),
+          'clockedIn': Timestamp(1724223834, 981000000),
+        },
       ],
     },
     {
-      'name': 'Mary Johnson',
+      'user': {
+        'firstName': 'Kofi',
+        'lastName': 'Antwi',
+        'phoneNumber': '0571234567',
+        'role': 'user',
+        'deviceId': 'SAMSUNGGalaxyA51',
+        'email': 'kofi@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
-        DateTime.now().subtract(Duration(days: 4)), // 4 days ago
+        {
+          'date': Timestamp(1724051033, 360000000), // Monday
+          'clockedOut': Timestamp(1724051038, 437000000),
+          'clockedIn': Timestamp(1724051034, 981000000),
+        },
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
       ],
     },
     {
-      'name': 'Michael Tetteh',
+      'user': {
+        'firstName': 'Esi',
+        'lastName': 'Adjei',
+        'phoneNumber': '0270123456',
+        'role': 'user',
+        'deviceId': 'NOKIA-C2',
+        'email': 'esi@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 2)), // 2 days ago
-        DateTime.now().subtract(Duration(days: 5)), // 5 days ago
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
+        {
+          'date': Timestamp(1724223833, 360000000), // Wednesday
+          'clockedOut': Timestamp(1724223838, 437000000),
+          'clockedIn': Timestamp(1724223834, 981000000),
+        },
+        {
+          'date': Timestamp(1724310233, 360000000), // Thursday
+          'clockedOut': Timestamp(1724310238, 437000000),
+          'clockedIn': Timestamp(1724310234, 981000000),
+        },
       ],
     },
     {
-      'name': 'Sophia Nyarko',
+      'user': {
+        'firstName': 'Ama',
+        'lastName': 'Koranteng',
+        'phoneNumber': '0267890123',
+        'role': 'user',
+        'deviceId': 'HUAWEI-Y7',
+        'email': 'ama@ymail.com',
+      },
       'timeEntries': [
-        DateTime.now().subtract(Duration(days: 1)), // Previous day
-        DateTime.now().subtract(Duration(days: 3)), // 3 days ago
-        DateTime.now().subtract(Duration(days: 5)), // 5 days ago
-        DateTime.now().subtract(Duration(days: 6)), // 6 days ago
+        {
+          'date': Timestamp(1724051033, 360000000), // Monday
+          'clockedOut': Timestamp(1724051038, 437000000),
+          'clockedIn': Timestamp(1724051034, 981000000),
+        },
+        {
+          'date': Timestamp(1724137433, 360000000), // Tuesday
+          'clockedOut': Timestamp(1724137438, 437000000),
+          'clockedIn': Timestamp(1724137434, 981000000),
+        },
+        {
+          'date': Timestamp(1724223833, 360000000), // Wednesday
+          'clockedOut': Timestamp(1724223838, 437000000),
+          'clockedIn': Timestamp(1724223834, 981000000),
+        },
+        {
+          'date': Timestamp(1724310233, 360000000), // Thursday
+          'clockedOut': Timestamp(1724310238, 437000000),
+          'clockedIn': Timestamp(1724310234, 981000000),
+        },
       ],
     },
   ];

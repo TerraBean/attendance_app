@@ -2,6 +2,7 @@
 
 import 'package:attendance_app/screens/admin/admin_dashboard.dart';
 import 'package:attendance_app/screens/admin/admin_employee_management.dart';
+import 'package:attendance_app/screens/admin/admin_report.dart';
 import 'package:attendance_app/screens/admin/admin_settings.dart';
 import 'package:attendance_app/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,9 @@ class _AdminState extends State<Admin> {
 
   final List<Widget> _pages = [
     const AdminDashboard(),
-    const AdminEmployeeManagement(),
+    // const AdminEmployeeManagement(),
     const AdminSettings(),
+    const AdminReport()
   ];
 
   void _onItemTapped(int index) {
@@ -43,13 +45,14 @@ class _AdminState extends State<Admin> {
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Employee Management',
-          ),
+        
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.report),
+            label: 'Report',
           ),
         ],
         currentIndex: _selectedIndex,

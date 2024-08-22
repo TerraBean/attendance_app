@@ -1,4 +1,7 @@
+import 'package:attendance_app/models/user_info.dart';
+import 'package:attendance_app/services/firebase_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AttendanceTable extends StatefulWidget {
@@ -7,61 +10,58 @@ class AttendanceTable extends StatefulWidget {
 }
 
 class _AttendanceTableState extends State<AttendanceTable> {
-  List<Map<String, dynamic>> usersWithAttendance = [];
 
-  @override
+    @override
   void initState() {
     super.initState();
-    _fetchAttendanceData();
-  }
-
-  Future<void> _fetchAttendanceData() async {
-    // Fetch data from fetchUsersWithTimeEntriesForCurrentWeek
-    List<Map<String, dynamic>> data = await fetchUsersWithTimeEntriesForCurrentWeek();
-    setState(() {
-      usersWithAttendance = data;
-    });
-  }
-
+    // Call fetchUsersWithTimeEntries to populate the cache initially
+    context.read<FirestoreService>().fetchUsersWithTimeEntries();
+    }
+  
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'This week',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+    return Consumer<FirestoreService>(
+      builder: (context, firestoreService, child) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(16.0),
             ),
-            const SizedBox(height: 10),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(3),
-                1: FlexColumnWidth(1),
-                2: FlexColumnWidth(1),
-                3: FlexColumnWidth(1),
-                4: FlexColumnWidth(1),
-                5: FlexColumnWidth(1),
-              },
-              children: _buildTableRows(),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'This week',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Use the cached data from FirestoreService
+                Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(3),
+                    1: FlexColumnWidth(1),
+                    2: FlexColumnWidth(1),
+                    3: FlexColumnWidth(1),
+                    4: FlexColumnWidth(1),
+                    5: FlexColumnWidth(1),
+                  },
+                  children: _buildTableRows(firestoreService.usersWithTimeEntriesCache['allUsers'] ?? []),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  List<TableRow> _buildTableRows() {
+  List<TableRow> _buildTableRows(List<Employee> usersWithAttendance) {
     List<TableRow> rows = [
       TableRow(
         children: [
@@ -94,8 +94,8 @@ class _AttendanceTableState extends State<AttendanceTable> {
     ];
 
     for (var user in usersWithAttendance) {
-      String name = '${user['user']['firstName']} ${user['user']['lastName']}';
-      List<Map<String, dynamic>> timeEntries = user['timeEntries'];
+      String name = '${user.firstName} ${user.lastName}';
+      List<TimeEntry>? timeEntries = user.timeEntries;
 
       rows.add(_buildTableRow(name, timeEntries));
     }
@@ -103,7 +103,7 @@ class _AttendanceTableState extends State<AttendanceTable> {
     return rows;
   }
 
-  TableRow _buildTableRow(String name, List<Map<String, dynamic>> timeEntries) {
+  TableRow _buildTableRow(String name, List<TimeEntry>? timeEntries) {
     List<Widget> rowCells = [
       Padding(
         padding: const EdgeInsets.all(8.0),
@@ -121,10 +121,11 @@ class _AttendanceTableState extends State<AttendanceTable> {
       Widget icon;
       if (now.isBefore(day)) {
         icon = Icon(Icons.access_time, color: Colors.grey); // Clock icon for future days
-      } else if (timeEntries.any((entry) =>
-          entry['date'].toDate().year == day.year &&
-          entry['date'].toDate().month == day.month &&
-          entry['date'].toDate().day == day.day)) {
+      } else if (timeEntries != null &&
+          timeEntries.any((entry) =>
+              entry.date!.toDate().year == day.year &&
+              entry.date!.toDate().month == day.month &&
+              entry.date!.toDate().day == day.day)) {
         icon = Icon(Icons.circle, color: Colors.green); // Green circle for clocked in
       } else if (now.isAfter(cutoffTime)) {
         icon = Icon(Icons.circle, color: Colors.red); // Red circle for missing clock-in after 5:00 PM
@@ -137,234 +138,4 @@ class _AttendanceTableState extends State<AttendanceTable> {
 
     return TableRow(children: rowCells);
   }
-Future<List<Map<String, dynamic>>> fetchUsersWithTimeEntriesForCurrentWeek() async {
-  return [
-    {
-      'user': {
-        'firstName': 'David',
-        'lastName': 'Acheampong',
-        'phoneNumber': '022436595',
-        'role': 'user',
-        'deviceId': 'HONORCRT-N31',
-        'email': 'kokot@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724051033, 360000000), // Monday
-          'clockedOut': Timestamp(1724051038, 437000000),
-          'clockedIn': Timestamp(1724051034, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Linda',
-        'lastName': 'Baidoo',
-        'phoneNumber': '027859851',
-        'role': 'user',
-        'deviceId': 'HONORCRT-N31',
-        'email': 'linda@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-        {
-          'date': Timestamp(1724223833, 360000000), // Wednesday
-          'clockedOut': Timestamp(1724223838, 437000000),
-          'clockedIn': Timestamp(1724223834, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Ernest',
-        'lastName': 'Adjei',
-        'phoneNumber': '0247896321',
-        'role': 'user',
-        'deviceId': 'SAMSUNGGalaxyA12',
-        'email': 'ernest@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724310233, 360000000), // Thursday
-          'clockedOut': Timestamp(1724310238, 437000000),
-          'clockedIn': Timestamp(1724310234, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Jennifer',
-        'lastName': 'Owusu',
-        'phoneNumber': '0501234567',
-        'role': 'user',
-        'deviceId': 'XIAOMIMiNote10',
-        'email': 'jennifer@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724051033, 360000000), // Monday
-          'clockedOut': Timestamp(1724051038, 437000000),
-          'clockedIn': Timestamp(1724051034, 981000000),
-        },
-        {
-          'date': Timestamp(1724223833, 360000000), // Wednesday
-          'clockedOut': Timestamp(1724223838, 437000000),
-          'clockedIn': Timestamp(1724223834, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Michael',
-        'lastName': 'Asante',
-        'phoneNumber': '0209876543',
-        'role': 'user',
-        'deviceId': 'TECNO-CAMON12',
-        'email': 'michael@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-        {
-          'date': Timestamp(1724310233, 360000000), // Thursday
-          'clockedOut': Timestamp(1724310238, 437000000),
-          'clockedIn': Timestamp(1724310234, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Sophia',
-        'lastName': 'Adomako',
-        'phoneNumber': '0241122334',
-        'role': 'user',
-        'deviceId': 'INFINIX-HOT8',
-        'email': 'sophia@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724051033, 360000000), // Monday
-          'clockedOut': Timestamp(1724051038, 437000000),
-          'clockedIn': Timestamp(1724051034, 981000000),
-        },
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-        {
-          'date': Timestamp(1724310233, 360000000), // Thursday
-          'clockedOut': Timestamp(1724310238, 437000000),
-          'clockedIn': Timestamp(1724310234, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Kojo',
-        'lastName': 'Mensah',
-        'phoneNumber': '0556677889',
-        'role': 'user',
-        'deviceId': 'ITEL-Vision1Pro',
-        'email': 'kojo@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724223833, 360000000), // Wednesday
-          'clockedOut': Timestamp(1724223838, 437000000),
-          'clockedIn': Timestamp(1724223834, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Kofi',
-        'lastName': 'Antwi',
-        'phoneNumber': '0571234567',
-        'role': 'user',
-        'deviceId': 'SAMSUNGGalaxyA51',
-        'email': 'kofi@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724051033, 360000000), // Monday
-          'clockedOut': Timestamp(1724051038, 437000000),
-          'clockedIn': Timestamp(1724051034, 981000000),
-        },
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Esi',
-        'lastName': 'Adjei',
-        'phoneNumber': '0270123456',
-        'role': 'user',
-        'deviceId': 'NOKIA-C2',
-        'email': 'esi@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-        {
-          'date': Timestamp(1724223833, 360000000), // Wednesday
-          'clockedOut': Timestamp(1724223838, 437000000),
-          'clockedIn': Timestamp(1724223834, 981000000),
-        },
-        {
-          'date': Timestamp(1724310233, 360000000), // Thursday
-          'clockedOut': Timestamp(1724310238, 437000000),
-          'clockedIn': Timestamp(1724310234, 981000000),
-        },
-      ],
-    },
-    {
-      'user': {
-        'firstName': 'Ama',
-        'lastName': 'Koranteng',
-        'phoneNumber': '0267890123',
-        'role': 'user',
-        'deviceId': 'HUAWEI-Y7',
-        'email': 'ama@ymail.com',
-      },
-      'timeEntries': [
-        {
-          'date': Timestamp(1724051033, 360000000), // Monday
-          'clockedOut': Timestamp(1724051038, 437000000),
-          'clockedIn': Timestamp(1724051034, 981000000),
-        },
-        {
-          'date': Timestamp(1724137433, 360000000), // Tuesday
-          'clockedOut': Timestamp(1724137438, 437000000),
-          'clockedIn': Timestamp(1724137434, 981000000),
-        },
-        {
-          'date': Timestamp(1724223833, 360000000), // Wednesday
-          'clockedOut': Timestamp(1724223838, 437000000),
-          'clockedIn': Timestamp(1724223834, 981000000),
-        },
-        {
-          'date': Timestamp(1724310233, 360000000), // Thursday
-          'clockedOut': Timestamp(1724310238, 437000000),
-          'clockedIn': Timestamp(1724310234, 981000000),
-        },
-      ],
-    },
-  ];
-}
-
 }

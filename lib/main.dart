@@ -1,4 +1,3 @@
-
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/screens/registration.dart';
 import 'package:attendance_app/services/firebase_services.dart';
@@ -8,11 +7,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-void main() async{
-   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirestoreService firestoreService = FirestoreService();
+  firestoreService.startUsersListener();
   runApp(MyApp());
 }
 
@@ -28,11 +31,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Clock In/Out App',
         debugShowCheckedModeBanner: false,
-         routes: {
-    '/login': (context) => LoginPage(),
-    '/registration': (context) => RegistrationPage(),
-    // ... other routes
-  },
+        routes: {
+          '/login': (context) => LoginPage(),
+          '/registration': (context) => RegistrationPage(),
+          // ... other routes
+        },
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),

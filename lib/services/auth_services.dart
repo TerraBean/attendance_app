@@ -48,6 +48,7 @@ class AuthService {
       await firebaseService.populateCurrentEmployee(context);
       //call weekattendance
       await firebaseService.weekAttendance();
+      await firebaseService.fetchUsersWithTimeEntries();
       
 
       return user;

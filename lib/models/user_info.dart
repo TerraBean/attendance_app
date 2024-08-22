@@ -112,9 +112,9 @@ class Employee {
 
 class TimeEntry {
   String? id;
-  DateTime? clockedIn;
-  DateTime? clockedOut;
-  DateTime? date;
+  Timestamp? clockedIn;
+  Timestamp? clockedOut;
+  Timestamp? date;
 
   TimeEntry({
     this.id,
@@ -126,9 +126,9 @@ class TimeEntry {
   // Constructor to create a TimeEntry object from a Map
   TimeEntry.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    clockedIn = (json['clockedIn'] as Timestamp?)?.toDate();
-    clockedOut = (json['clockedOut'] as Timestamp?)?.toDate();
-    date = (json['date'] as Timestamp?)?.toDate();
+    clockedIn = json['clockedIn'] as Timestamp?;
+    clockedOut = json['clockedOut'] as Timestamp?;
+    date = json['date'] as Timestamp?;
   }
 
   // Method to convert TimeEntry object to a Map
@@ -140,4 +140,5 @@ class TimeEntry {
       'date': date,
     };
   }
+
 }

@@ -8,24 +8,20 @@ class AdminSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Settings'),
-      ),
-      body: Center(
+    return SafeArea(
+      child: Center(
         child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-            
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () {
                 // Get the LocationService instance from the provider
                 final locationService =
                     Provider.of<LocationService>(context, listen: false);
-                      
+
                 // Call setCenterLocation() on the LocationService
-                locationService.setCenterLocation();
+                locationService.setCenterLocation(context);
               },
               child: const Text('Set Center Location'),
             ),

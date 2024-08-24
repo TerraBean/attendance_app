@@ -45,7 +45,7 @@ class LocationService extends ChangeNotifier {
     }
   }
 
-  Future<void> setCenterLocation() async {
+  Future<void> setCenterLocation(BuildContext context) async {
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best);
@@ -54,6 +54,15 @@ class LocationService extends ChangeNotifier {
         position.latitude,
         position.longitude,
       );
+ ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Updated Center location successfully..'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+
+
       notifyListeners();
     } catch (e) {
       // Handle the error

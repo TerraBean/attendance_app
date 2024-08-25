@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is initialized
@@ -29,6 +30,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => FirestoreService()),
       ],
       child: MaterialApp(
+        localizationsDelegates: const [
+          MonthYearPickerLocalizations.delegate, // Add this line
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // Add the locales you need here
+          // Other locales the app supports
+        ],
         title: 'Clock In/Out App',
         debugShowCheckedModeBanner: false,
         routes: {

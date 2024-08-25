@@ -23,7 +23,10 @@ class _AdminReportState extends State<AdminReport> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => _showMonthYearPicker(context),
+              onPressed: () {
+                print('Button pressed');
+                _showMonthYearPicker(context);
+              },
               child: Text('Select Month and Year'),
             ),
             Text(
@@ -52,19 +55,21 @@ class _AdminReportState extends State<AdminReport> {
   }
 
   Future<void> _showMonthYearPicker(BuildContext context) async {
-    final localeObj = Locale('en', 'US');
     final selected = await showMonthYearPicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      locale: localeObj,
+      locale: const Locale('en', 'US'),
+
     );
 
     if (selected != null) {
       setState(() {
         selectedDate = selected;
       });
+    } else {
+      print('Picker was dismissed without selection.');
     }
   }
 
@@ -80,12 +85,12 @@ class _AdminReportState extends State<AdminReport> {
       var presentDays = 0;
       var absentDays = 0;
 
-
       var daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
       for (var day = 1; day <= daysInMonth; day++) {
         var date = DateTime(selectedYear, selectedMonth, day);
         // Check if it's a weekday
-        if (date.weekday >= DateTime.monday && date.weekday <= DateTime.friday) {
+        if (date.weekday >= DateTime.monday &&
+            date.weekday <= DateTime.friday) {
           var foundEntry = user.timeEntries!.any((entry) {
             DateTime entryDateTime = entry.date!.toDate();
             return entryDateTime.day == date.day &&
@@ -94,8 +99,9 @@ class _AdminReportState extends State<AdminReport> {
           });
 
           // Only count as absent if the day has passed AND it's past 5 PM
-          if (!foundEntry && 
-              date.isBefore(DateTime(currentDate.year, currentDate.month, currentDate.day, 17, 0, 0))) { 
+          if (!foundEntry &&
+              date.isBefore(DateTime(currentDate.year, currentDate.month,
+                  currentDate.day, 17, 0, 0))) {
             absentDays++;
           } else if (foundEntry) {
             presentDays++;

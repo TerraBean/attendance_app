@@ -1,3 +1,4 @@
+import 'package:attendance_app/screens/admin/total_card.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/widgets/admin_card.dart';
 import 'package:attendance_app/widgets/attendance_table';
@@ -42,44 +43,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
-        children: [
-          ReusableCard(
-            icon: Icons.person,
-            title: "Total Employees",
-            data: _isLoading
-                ? '...' // Show "..." while loading
-                : _totalEmployees.toString(),
-          ),
-          Row(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+        child: SingleChildScrollView(
+          // Make the content scrollable
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Expanded(
-                child: Consumer<FirestoreService>(
-                  builder: (context, firebaseService, child) {
-                    // Get the time entries for today from the provider
-                    // Map<String, List<Map<String, dynamic>>> timeEntries =
-                    //     firebaseService.timeEntriesByUser;
-
-                    // // Calculate the number of clocked-in employees
-                    // _totalClockedIn = timeEntries
-                    //     .where((entry) => entry['clockedOut'] == null)
-                    //     .length;
-
-                    return ReusableCard(
-                      icon: Icons.access_time,
-                      title: "Total In",
-                      data: _isLoading
-                          ? '...' // Show "..." while loading
-                          : _totalClockedIn.toString(),
-                    );
-                  },
+              const SizedBox(
+                height: 20,
+              ),
+              SingleChildScrollView(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: TotalCard(
+                        title: "STAFF TOTAL",
+                        count: _isLoading ? 0 : 0,
+                        countColor: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: TotalCard(
+                        title: "TOTAL IN",
+                        count: _isLoading ? 0 : 0,
+                        countColor: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TotalCard(
+                        title: "TOTAL OUT",
+                        count: _isLoading ? 0 : 0,
+                        countColor: Colors.red,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              // ... (Other widgets)
+              const SizedBox(
+                height: 20,
+              ),
+              AttendanceTable()
             ],
           ),
-          AttendanceTable()
-        ],
+        ),
       ),
     );
   }

@@ -15,7 +15,7 @@ class TotalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
@@ -44,7 +44,7 @@ class TotalCard extends StatelessWidget {
           Text(
             count.toString(),
             style: TextStyle(
-              fontSize: 40,
+              fontSize: 35,
               color: countColor,
               fontWeight: FontWeight.bold,
             ),

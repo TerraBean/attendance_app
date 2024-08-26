@@ -1,3 +1,4 @@
+import 'package:attendance_app/screens/attendance_timeline.dart';
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/screens/registration.dart';
 import 'package:attendance_app/services/firebase_services.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => LoginPage(),
           '/registration': (context) => RegistrationPage(),
+          '/attendance-timeline':(context) => AttendanceTimeline()
           // ... other routes
         },
         theme: ThemeData(

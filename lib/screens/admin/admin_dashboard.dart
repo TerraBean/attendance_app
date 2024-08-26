@@ -14,31 +14,65 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _totalEmployees = 0;
-  final int _totalClockedIn = 0;
+  int _totalClockedIn = 0;
+  int _totalClockedOut = 0;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchTotalEmployees();
-    // No need to call _fetchTotalTimeEntries anymore
+    _fetchTotalEmployeesAndAttendance();
   }
 
-  final firebaseService = FirestoreService();
+Future<void> _fetchTotalEmployeesAndAttendance() async {
+  final firebaseService =
+      Provider.of<FirestoreService>(context, listen: false);
+  await firebaseService.fetchUsersWithTimeEntries();
 
-  Future<void> _fetchTotalEmployees() async {
-    try {
-      final users = await firebaseService.getEmployees();
-      setState(() {
-        _totalEmployees = users.length;
-        _isLoading = false;
-      });
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    final usersWithTimeEntries =
+        firebaseService.usersWithTimeEntriesCache['allUsers'] ?? [];
+    _totalEmployees = usersWithTimeEntries.length;
+
+    final now = DateTime.now();
+
+    for (var user in usersWithTimeEntries) {
+      // Ensure timeEntries is not null before iterating
+      if (user.timeEntries != null) { 
+        for (var timeEntry in user.timeEntries!) { 
+          // Convert Timestamp to DateTime
+          DateTime? clockedIn = timeEntry.clockedIn?.toDate();
+          DateTime? clockedOut = timeEntry.clockedOut?.toDate();
+
+          // Check if the date components match for clockedIn
+          if (clockedIn != null && 
+              DateTime(clockedIn.year, clockedIn.month, clockedIn.day) == 
+              DateTime(now.year, now.month, now.day)) {
+            _totalClockedIn++;
+          }
+
+          // Check if the date components match for clockedOut
+          if (clockedOut != null &&
+              DateTime(clockedOut.year, clockedOut.month, clockedOut.day) == 
+              DateTime(now.year, now.month, now.day)) {
+            _totalClockedOut++;
+          }
+        }
+      }
     }
+  } catch (error) {
+    print('Error calculating attendance: $error');
   }
+
+  setState(() {
+    _isLoading = false;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +94,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     Expanded(
                       child: TotalCard(
                         title: "STAFF TOTAL",
-                        count: _isLoading ? 0 : 0,
+                        count: _isLoading ? 0 : _totalEmployees,
                         countColor: Colors.black,
                       ),
                     ),
@@ -70,7 +104,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     Expanded(
                       child: TotalCard(
                         title: "TOTAL IN",
-                        count: _isLoading ? 0 : 0,
+                        count: _isLoading ? 0 : _totalClockedIn,
                         countColor: Colors.green,
                       ),
                     ),
@@ -78,7 +112,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     Expanded(
                       child: TotalCard(
                         title: "TOTAL OUT",
-                        count: _isLoading ? 0 : 0,
+                        count: _isLoading ? 0 : _totalClockedOut,
                         countColor: Colors.red,
                       ),
                     ),
@@ -87,6 +121,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               const SizedBox(
                 height: 20,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: AdminCard(
+                      title: "Attendance Timeline",
+                      icon: Icons.check_circle_outline, // Use the appropriate icon
+                      onTap: () {
+                        // Navigate to AttendanceTimeline page
+                        Navigator.pushNamed(context, '/attendance-timeline');
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: AdminCard(
+                      title: "Access Management",
+                      icon: Icons.person_add, // Use the appropriate icon
+                      onTap: () {
+                        // Handle tap for Access Management
+                      },
+                    ),
+                  ),
+                ],
               ),
               AttendanceTable()
             ],

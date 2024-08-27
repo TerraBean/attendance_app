@@ -4,12 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _storage = const FlutterSecureStorage();
 
-  Future<User?> login(String email, String password, BuildContext context) async {
+  Future<User?> login(
+      String email, String password, BuildContext context) async {
     try {
       // Trim leading and trailing spaces from email before login
       email = email.trim();
@@ -25,8 +28,11 @@ class AuthService {
       String? deviceId = await DeviceUtils.getDeviceId(context);
 
       // Check if the device ID matches the user's device ID in Firestore
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(user!.uid).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user!.uid).get();
       if (userDoc.exists) {
+        await _storage.write(key: 'idToken', value: await user.getIdToken());
+
         String? storedDeviceId = userDoc.get('deviceId');
         if (storedDeviceId != deviceId) {
           // Device ID mismatch, throw an error
@@ -44,12 +50,12 @@ class AuthService {
       }
 
       // After successful login, populate currentEmployee
-      final firebaseService = Provider.of<FirestoreService>(context, listen: false);
+      final firebaseService =
+          Provider.of<FirestoreService>(context, listen: false);
       await firebaseService.populateCurrentEmployee(context);
       //call weekattendance
       await firebaseService.weekAttendance();
       await firebaseService.fetchUsersWithTimeEntries();
-      
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -57,44 +63,68 @@ class AuthService {
     }
   }
 
+  Future<User?> checkForExistingLogin() async {
+    try {
+      // Retrieve the stored ID token
+      String? idToken = await _storage.read(key: 'idToken');
 
-Future<UserCredential?> register(String firstName, String lastName, String email, String phoneNumber, String password, String deviceInfo) async {
-  try {
-    // Attempt to create a new user
-    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    User? user = credential.user;
+      if (idToken != null) {
+        // Authenticate with Firebase using the stored token
+        UserCredential userCredential =
+            await _firebaseAuth.signInWithCredential(OAuthCredential(
+          providerId: 'firebase', // Important: Set provider ID
+          signInMethod: 'password', // Important: Set sign-in method
+          accessToken: idToken,
+        ));
+        return userCredential.user;
+      }
+    } catch (e) {
+      print('Error checking for existing login: $e');
+    }
+    return null;
+  }
 
-    // Add user data to Firestore
-    await _firestore.collection('users').doc(user!.uid).set({
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'phoneNumber': phoneNumber,
-      'role': 'user', // Default role
-      'deviceId': deviceInfo,
-    });
+  Future<UserCredential?> register(
+      String firstName,
+      String lastName,
+      String email,
+      String phoneNumber,
+      String password,
+      String deviceInfo) async {
+    try {
+      // Attempt to create a new user
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      User? user = credential.user;
 
-    return credential;
-  } on FirebaseAuthException catch (e) {
-    // Handle specific error codes
-    if (e.code == 'email-already-in-use') {
-      throw Exception('An account with this email already exists');
-    } else {
-      print('Error during registration: ${e.code}');
-      throw Exception('Registration failed. Please try again later.');
+      // Add user data to Firestore
+      await _firestore.collection('users').doc(user!.uid).set({
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'phoneNumber': phoneNumber,
+        'role': 'user', // Default role
+        'deviceId': deviceInfo,
+      });
+
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      // Handle specific error codes
+      if (e.code == 'email-already-in-use') {
+        throw Exception('An account with this email already exists');
+      } else {
+        print('Error during registration: ${e.code}');
+        throw Exception('Registration failed. Please try again later.');
+      }
     }
   }
-}
-
-
-
 
   Future<bool> isAdmin(String uid) async {
     try {
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(uid).get();
       if (userDoc.exists) {
         String? role = userDoc.get('role');
         return role == 'admin'; // Check if the role is 'admin'
@@ -109,5 +139,6 @@ Future<UserCredential?> register(String firstName, String lastName, String email
 
   Future<void> logout() async {
     await _firebaseAuth.signOut();
+    await _storage.delete(key: 'idToken');
   }
 }

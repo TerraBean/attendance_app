@@ -1,128 +1,99 @@
+import 'package:attendance_app/models/user_info.dart'; 
+import 'package:attendance_app/services/firebase_services.dart';
+import 'package:attendance_app/widgets/timeline_tile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; 
 
-class AttendanceTimeline extends StatelessWidget {
-  final List<AttendanceEvent> events = [
-    AttendanceEvent(time: '7:30 am', name: 'Adams Mujahid', type: 'Clock In'),
-    AttendanceEvent(time: '7:44 am', name: 'Linda Baidoo', type: 'Clock In'),
-    AttendanceEvent(time: '5:05 pm', name: 'Adams Mujahid', type: 'Clock Out'),
-    AttendanceEvent(time: '5:00 pm', name: 'Linda Baidoo', type: 'Clock Out'),
-  ];
+class AttendanceTimeline extends StatefulWidget {
+  const AttendanceTimeline({Key? key}) : super(key: key);
 
+  @override
+  State<AttendanceTimeline> createState() => _AttendanceTimelineState();
+}
+
+class _AttendanceTimelineState extends State<AttendanceTimeline> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Attendance Timeline'),
+        title: const Text('Attendance Timeline'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            return TimelineTile(
-              time: events[index].time,
-              name: events[index].name,
-              type: events[index].type,
-              isLast: index == events.length - 1,
-            );
-          },
-        ),
+        child: _buildTimeline(context),
       ),
     );
   }
-}
 
-class TimelineTile extends StatelessWidget {
-  final String time;
-  final String name;
-  final String type;
-  final bool isLast;
+  Widget _buildTimeline(BuildContext context) {
+    List usersWithTimeEntries = Provider.of<FirestoreService>(context)
+            .usersWithTimeEntriesCache['allUsers'] ??
+        [];
 
-  const TimelineTile({
-    required this.time,
-    required this.name,
-    required this.type,
-    required this.isLast,
-  });
+    List<Map<String, dynamic>> todaysEntries = [];
+    DateTime now = DateTime.now();
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    for (var user in usersWithTimeEntries) {
+      for (var entry in user.timeEntries) {
+        DateTime entryDate = (entry.date as Timestamp).toDate();
+        if (entryDate.year == now.year &&
+            entryDate.month == now.month &&
+            entryDate.day == now.day) {
+          // Add clock in entry
+          if (entry.clockedIn != null) {
+            todaysEntries.add({
+              'employeeFirstName': user.firstName,
+              'employeeLastName': user.lastName,
+              'time': entry.clockedIn,
+              'type': 'Clock In',
+            });
+          }
+
+          // Add clock out entry
+          if (entry.clockedOut != null) {
+            todaysEntries.add({
+              'employeeFirstName': user.firstName,
+              'employeeLastName': user.lastName,
+              'time': entry.clockedOut,
+              'type': 'Clock Out',
+            });
+          }
+        }
+      }
+    }
+
+    // 2. Sort chronologically (most recent first)
+    todaysEntries.sort((a, b) {
+      DateTime aDate = (a['time'] as Timestamp).toDate();
+      DateTime bDate = (b['time'] as Timestamp).toDate();
+      return bDate.compareTo(aDate);
+    });
+
+    // 3. Build the timeline
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          children: [
-            Text(
-              time,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (!isLast)
-              Container(
-                height: 60,
-                width: 1,
-                color: Colors.grey,
-              ),
-          ],
-        ),
-        const SizedBox(width: 8),
-        Column(
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: type == 'Clock In' ? Colors.green : Colors.red,
-              ),
-            ),
-            if (!isLast)
-              Container(
-                height: 60,
-                width: 1,
-                color: Colors.grey,
-              ),
-          ],
-        ),
-        const SizedBox(width: 16),
         Expanded(
-          child: Card(
-            margin: EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: type == 'Clock In' ? Colors.green : Colors.red,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
-                    child: Text(
-                      type,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(name),
-                ],
-              ),
-            ),
+          child: ListView.builder(
+            itemCount: todaysEntries.length,
+            itemBuilder: (context, index) {
+              var entry = todaysEntries[index];
+              String formattedTime = DateFormat('h:mm a')
+                  .format((entry['time'] as Timestamp).toDate());
+
+              return TimelineTile(
+                time: formattedTime,
+                name:
+                    '${entry['employeeFirstName'] != null ? entry['employeeFirstName'] : ''} ${entry['employeeLastName'] != null ? entry['employeeLastName'] : ''}',
+                type: entry['type'], 
+                isLast: index == todaysEntries.length - 1,
+              );
+            },
           ),
         ),
       ],
     );
   }
-}
-
-class AttendanceEvent {
-  final String time;
-  final String name;
-  final String type;
-
-  AttendanceEvent({required this.time, required this.name, required this.type});
 }

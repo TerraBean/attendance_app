@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class TimelineTile extends StatelessWidget {
   final String time;
   final String name;
-  final String type;
-  final bool isLast;
+  final String type; // 'Clock In' or 'Clock Out'
+  final bool isLast; // To determine if it's the last tile
 
   const TimelineTile({
     required this.time,
@@ -20,24 +20,27 @@ class TimelineTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            children: [
-              Container(
-                width: 20.0,
-                height: 20.0,
-                decoration: BoxDecoration(
-                  color: type == 'Clock In' ? Colors.green : Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2.0,
-                    color: Colors.grey[300],
+           SizedBox( // Add SizedBox with a fixed height
+            height: 80, // Adjust the height as needed
+            child: Column(
+              children: [
+                Container(
+                  width: 20.0,
+                  height: 20.0,
+                  decoration: BoxDecoration(
+                    color: type == 'Clock In' ? Colors.green : Colors.red,
+                    shape: BoxShape.circle,
                   ),
                 ),
-            ],
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2.0,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(width: 16.0),
           Expanded(
@@ -46,14 +49,14 @@ class TimelineTile extends StatelessWidget {
               children: [
                 Text(
                   time,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 4.0),
                 Text(
                   '$name - $type',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16.0,
                   ),
                 ),

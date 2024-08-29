@@ -1,5 +1,6 @@
 import 'package:attendance_app/screens/admin/admin.dart';
 import 'package:attendance_app/screens/attendance_timeline.dart';
+import 'package:attendance_app/screens/employee_management.dart';
 import 'package:attendance_app/screens/home_screen.dart';
 import 'package:attendance_app/screens/login.dart';
 import 'package:attendance_app/screens/registration.dart';
@@ -45,7 +46,8 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginPage(),
           '/registration': (context) => const RegistrationPage(),
-          '/attendance-timeline':(context) => AttendanceTimeline()
+          '/attendance-timeline':(context) => AttendanceTimeline(),
+          '/employee-management':(context) => EmployeeManagement(),
           // ... other routes
         },
             localizationsDelegates: const [

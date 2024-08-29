@@ -137,8 +137,9 @@ class AuthService {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     await _firebaseAuth.signOut();
+      Provider.of<FirestoreService>(context, listen: false).clearCache();
     await _storage.delete(key: 'idToken');
   }
 }

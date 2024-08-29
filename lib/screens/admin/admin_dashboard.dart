@@ -142,7 +142,8 @@ Future<void> _fetchTotalEmployeesAndAttendance() async {
                       title: "Access Management",
                       icon: Icons.person_add, // Use the appropriate icon
                       onTap: () {
-                        // Handle tap for Access Management
+                        // Navigate to Employee Management page
+                        Navigator.pushNamed(context, '/employee-management');
                       },
                     ),
                   ),

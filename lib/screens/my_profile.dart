@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   // function to logout using AuthService logout function
   void logout() async {
-    await AuthService().logout();
+    await AuthService().logout(context);
     if (!context.mounted) return;
     // After logout, navigate to LoginPage and remove all previous routes
     Navigator.pushAndRemoveUntil(

@@ -472,4 +472,17 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
+   void clearCache() {
+    _employeeCache.clear();
+    _usersWithTimeEntriesCache.clear();
+    // Clear other caches or reset any user-specific state
+    notifyListeners();
+  }
+
+   // Ensure you unsubscribe from any streams
+  void unsubscribeFromStreams() {
+    _usersSubscription?.cancel();
+    // Cancel other subscriptions if any
+  }
+
 }

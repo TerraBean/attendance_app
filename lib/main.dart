@@ -1,9 +1,9 @@
-import 'package:attendance_app/screens/admin/admin.dart';
-import 'package:attendance_app/screens/attendance_timeline.dart';
-import 'package:attendance_app/screens/employee_management.dart';
-import 'package:attendance_app/screens/home_screen.dart';
-import 'package:attendance_app/screens/login.dart';
-import 'package:attendance_app/screens/registration.dart';
+import 'package:attendance_app/presentation/screens/admin/admin.dart';
+import 'package:attendance_app/presentation/screens/attendance_timeline.dart';
+import 'package:attendance_app/presentation/screens/employee_management.dart';
+import 'package:attendance_app/presentation/screens/home_screen.dart';
+import 'package:attendance_app/presentation/screens/login.dart';
+import 'package:attendance_app/presentation/screens/registration.dart';
 import 'package:attendance_app/services/auth_services.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';

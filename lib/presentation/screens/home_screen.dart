@@ -1,12 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:attendance_app/screens/login.dart';
-import 'package:attendance_app/screens/my_profile.dart';
+import 'package:attendance_app/presentation/screens/login.dart';
+import 'package:attendance_app/presentation/screens/my_profile.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/services/location_services.dart';
-import 'package:attendance_app/widgets/clock_in_button.dart';
-import 'package:attendance_app/widgets/clock_out_button.dart';
-import 'package:attendance_app/widgets/profile_avatar.dart';
+import 'package:attendance_app/presentation/widgets/clock_in_button.dart';
+import 'package:attendance_app/presentation/widgets/clock_out_button.dart';
+import 'package:attendance_app/presentation/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -1,4 +1,4 @@
-import 'package:attendance_app/screens/my_profile.dart';
+import 'package:attendance_app/presentation/screens/my_profile.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

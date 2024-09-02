@@ -31,8 +31,8 @@ class FirestoreService extends ChangeNotifier {
       if (_employeeCache.isEmpty) {
         QuerySnapshot snapshot = await _db.collection('users').get();
         for (var doc in snapshot.docs) {
-          _employeeCache[doc.id] = Employee.fromJson(
-              doc.data() as Map<String, dynamic>);
+          _employeeCache[doc.id] =
+              Employee.fromJson(doc.data() as Map<String, dynamic>);
         }
       }
       return _employeeCache.values.toList();
@@ -105,17 +105,29 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> getEmployee(String uid) async {
+  Future<Employee?> getEmployee(String? uid) async {
     try {
       DocumentSnapshot snapshot = await _db.collection('users').doc(uid).get();
       if (snapshot.exists) {
-        _currentEmployee =
+        Employee employee =
             Employee.fromJson(snapshot.data() as Map<String, dynamic>);
         notifyListeners();
-        return snapshot.data() as Map<String, dynamic>;
+        return employee; // Return the Employee object directly
       }
     } catch (e) {
       print('Error getting employee data: $e');
+    }
+    return null; // Return null if there's an error or employee not found
+  }
+
+  // create a deleteEmployeefunction that returns Employee object
+  Future<Employee?> deleteEmployee(String uid) async {
+    try {
+      await _db.collection('users').doc(uid).delete();
+      notifyListeners();
+      return _employeeCache.remove(uid);
+    } catch (e) {
+      print('Error deleting employee: $e');
     }
     return null;
   }
@@ -337,6 +349,7 @@ class FirestoreService extends ChangeNotifier {
 
         // Create an Employee object and add it to the list
         Employee employee = Employee.fromJson(userData);
+        employee.uid = userId;
 
         // Convert the list of maps to a list of TimeEntry objects
         employee.timeEntries = timeEntries
@@ -421,6 +434,7 @@ class FirestoreService extends ChangeNotifier {
       return [];
     }
   }
+
   // Start listening to changes in the 'users' collection
   void startUsersListener() {
     _usersSubscription = _db.collection('users').snapshots().listen((snapshot) {
@@ -432,7 +446,8 @@ class FirestoreService extends ChangeNotifier {
         _updateUserCache(doc);
 
         // Set up a listener for the user's timeEntries
-        _db.collection('users')
+        _db
+            .collection('users')
             .doc(userId)
             .collection('timeEntries')
             .snapshots()
@@ -458,7 +473,8 @@ class FirestoreService extends ChangeNotifier {
   }
 
   // Update the time entries cache
-  void _updateTimeEntriesCache(String userId, QuerySnapshot timeEntriesSnapshot) {
+  void _updateTimeEntriesCache(
+      String userId, QuerySnapshot timeEntriesSnapshot) {
     if (_employeeCache.containsKey(userId)) {
       Employee employee = _employeeCache[userId]!;
 
@@ -472,17 +488,16 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-   void clearCache() {
+  void clearCache() {
     _employeeCache.clear();
     _usersWithTimeEntriesCache.clear();
     // Clear other caches or reset any user-specific state
     notifyListeners();
   }
 
-   // Ensure you unsubscribe from any streams
+  // Ensure you unsubscribe from any streams
   void unsubscribeFromStreams() {
     _usersSubscription?.cancel();
     // Cancel other subscriptions if any
   }
-
 }

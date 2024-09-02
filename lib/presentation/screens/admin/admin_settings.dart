@@ -1,5 +1,5 @@
 import 'package:attendance_app/services/location_services.dart';
-import 'package:attendance_app/widgets/radius_settings.dart';
+import 'package:attendance_app/presentation/widgets/radius_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

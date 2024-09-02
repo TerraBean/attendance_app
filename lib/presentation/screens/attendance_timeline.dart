@@ -1,6 +1,6 @@
 import 'package:attendance_app/models/user_info.dart';
 import 'package:attendance_app/services/firebase_services.dart';
-import 'package:attendance_app/widgets/timeline_tile.dart';
+import 'package:attendance_app/presentation/widgets/timeline_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

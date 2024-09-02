@@ -1,7 +1,7 @@
-import 'package:attendance_app/screens/admin/total_card.dart';
+import 'package:attendance_app/presentation/screens/admin/total_card.dart';
 import 'package:attendance_app/services/firebase_services.dart';
-import 'package:attendance_app/widgets/admin_card.dart';
-import 'package:attendance_app/widgets/attendance_table';
+import 'package:attendance_app/presentation/widgets/admin_card.dart';
+import 'package:attendance_app/presentation/widgets/attendance_table';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
 
@@ -24,55 +24,54 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _fetchTotalEmployeesAndAttendance();
   }
 
-Future<void> _fetchTotalEmployeesAndAttendance() async {
-  final firebaseService =
-      Provider.of<FirestoreService>(context, listen: false);
-  await firebaseService.fetchUsersWithTimeEntries();
+  Future<void> _fetchTotalEmployeesAndAttendance() async {
+    final firebaseService =
+        Provider.of<FirestoreService>(context, listen: false);
+    await firebaseService.fetchUsersWithTimeEntries();
 
-  setState(() {
-    _isLoading = true;
-  });
+    setState(() {
+      _isLoading = true;
+    });
 
-  try {
-    final usersWithTimeEntries =
-        firebaseService.usersWithTimeEntriesCache['allUsers'] ?? [];
-    _totalEmployees = usersWithTimeEntries.length;
+    try {
+      final usersWithTimeEntries =
+          firebaseService.usersWithTimeEntriesCache['allUsers'] ?? [];
+      _totalEmployees = usersWithTimeEntries.length;
 
-    final now = DateTime.now();
+      final now = DateTime.now();
 
-    for (var user in usersWithTimeEntries) {
-      // Ensure timeEntries is not null before iterating
-      if (user.timeEntries != null) { 
-        for (var timeEntry in user.timeEntries!) { 
-          // Convert Timestamp to DateTime
-          DateTime? clockedIn = timeEntry.clockedIn?.toDate();
-          DateTime? clockedOut = timeEntry.clockedOut?.toDate();
+      for (var user in usersWithTimeEntries) {
+        // Ensure timeEntries is not null before iterating
+        if (user.timeEntries != null) {
+          for (var timeEntry in user.timeEntries!) {
+            // Convert Timestamp to DateTime
+            DateTime? clockedIn = timeEntry.clockedIn?.toDate();
+            DateTime? clockedOut = timeEntry.clockedOut?.toDate();
 
-          // Check if the date components match for clockedIn
-          if (clockedIn != null && 
-              DateTime(clockedIn.year, clockedIn.month, clockedIn.day) == 
-              DateTime(now.year, now.month, now.day)) {
-            _totalClockedIn++;
-          }
+            // Check if the date components match for clockedIn
+            if (clockedIn != null &&
+                DateTime(clockedIn.year, clockedIn.month, clockedIn.day) ==
+                    DateTime(now.year, now.month, now.day)) {
+              _totalClockedIn++;
+            }
 
-          // Check if the date components match for clockedOut
-          if (clockedOut != null &&
-              DateTime(clockedOut.year, clockedOut.month, clockedOut.day) == 
-              DateTime(now.year, now.month, now.day)) {
-            _totalClockedOut++;
+            // Check if the date components match for clockedOut
+            if (clockedOut != null &&
+                DateTime(clockedOut.year, clockedOut.month, clockedOut.day) ==
+                    DateTime(now.year, now.month, now.day)) {
+              _totalClockedOut++;
+            }
           }
         }
       }
+    } catch (error) {
+      print('Error calculating attendance: $error');
     }
-  } catch (error) {
-    print('Error calculating attendance: $error');
+
+    setState(() {
+      _isLoading = false;
+    });
   }
-
-  setState(() {
-    _isLoading = false;
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {

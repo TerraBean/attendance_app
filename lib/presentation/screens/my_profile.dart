@@ -1,5 +1,5 @@
-import 'package:attendance_app/screens/edit_profile.dart';
-import 'package:attendance_app/screens/login.dart';
+import 'package:attendance_app/presentation/screens/edit_profile.dart';
+import 'package:attendance_app/presentation/screens/login.dart';
 import 'package:attendance_app/services/auth_services.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => EditProfilePage()),
+                          builder: (context) => EditProfilePage(userId:  firebaseService.currentEmployee?.uid)),
                     );
                   },
                   style: ElevatedButton.styleFrom(

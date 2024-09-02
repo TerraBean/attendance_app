@@ -1,4 +1,4 @@
-import 'package:attendance_app/widgets/radius_settings.dart';
+import 'package:attendance_app/presentation/widgets/radius_settings.dart';
 import 'package:flutter/material.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

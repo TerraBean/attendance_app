@@ -48,7 +48,8 @@ class AuthService {
           'deviceId': deviceId // Store the device ID
         }, SetOptions(merge: true)); // Merge to avoid overwriting existing data
       }
-
+      print('PRINTING USER... $user');
+      print(user);
       // After successful login, populate currentEmployee
       final firebaseService =
           Provider.of<FirestoreService>(context, listen: false);
@@ -139,7 +140,7 @@ class AuthService {
 
   Future<void> logout(BuildContext context) async {
     await _firebaseAuth.signOut();
-      Provider.of<FirestoreService>(context, listen: false).clearCache();
+    Provider.of<FirestoreService>(context, listen: false).clearCache();
     await _storage.delete(key: 'idToken');
   }
 }

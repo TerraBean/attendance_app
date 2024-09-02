@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:attendance_app/screens/admin/admin.dart';
-import 'package:attendance_app/screens/home_screen.dart';
+import 'package:attendance_app/presentation/screens/admin/admin.dart';
+import 'package:attendance_app/presentation/screens/home_screen.dart';
 import 'package:attendance_app/services/auth_services.dart';
 import 'package:attendance_app/services/firebase_services.dart';
 import 'package:attendance_app/utils/device_util.dart';

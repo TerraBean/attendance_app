@@ -1,10 +1,10 @@
-import 'package:attendance_app/screens/login.dart';
-import 'package:attendance_app/screens/registration.dart';
+import 'package:attendance_app/presentation/screens/login.dart';
+import 'package:attendance_app/presentation/screens/registration.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:attendance_app/models/auth_view_model.dart';
-import 'package:attendance_app/widgets/common_widgets.dart';
+import 'package:attendance_app/presentation/widgets/common_widgets.dart';
 
 class AuthForm extends StatelessWidget {
   final bool isRegistration;

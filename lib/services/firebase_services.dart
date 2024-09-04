@@ -157,28 +157,35 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
-  Future<void> updateUser(String? uid, String firstName, String lastName,
+  Future<void> updateUser(String? uid, bool isAdminEdit, String firstName, String lastName,
       String phoneNumber) async {
     try {
-      User? user = _auth.currentUser;
       print(
           'Current Employee: ${_currentEmployee!.firstName} ${_currentEmployee!.lastName}');
-      print('Current Employee ID: ${user?.uid}');
+      print('Current Employee ID: $uid');
       print('updating..');
-      await _db.collection('users').doc(user?.uid).update({
+      await _db.collection('users').doc(uid).update({
         'firstName': firstName,
         'lastName': lastName,
         'phoneNumber': phoneNumber,
       });
+      // use the uid passed as an argurment to update userswithtimeentriescache and notfiylisteners
+      if(isAdminEdit){
+        _usersWithTimeEntriesCache[uid]!.first.firstName = firstName;
+        _usersWithTimeEntriesCache[uid]!.first.lastName = lastName;
+        _usersWithTimeEntriesCache[uid]!.first.phoneNumber = phoneNumber;
+        notifyListeners();
+      }
+        
 
-      if (_employeeCache.containsKey(uid)) {
+      if (_employeeCache.containsKey(uid) ) {
         _employeeCache[uid]!.firstName = firstName;
         _employeeCache[uid]!.lastName = lastName;
         _employeeCache[uid]!.phoneNumber = phoneNumber;
         notifyListeners();
       }
 
-      if (_currentEmployee?.uid == uid) {
+      if (_currentEmployee?.uid == uid && !isAdminEdit) {
         _currentEmployee!.firstName = firstName;
         _currentEmployee!.lastName = lastName;
         _currentEmployee!.phoneNumber = phoneNumber;
@@ -372,6 +379,8 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
+
+
   Future<List<Map<String, dynamic>>> weekAttendance() async {
     List<Map<String, dynamic>> usersWithTimeEntries = [];
 
@@ -470,6 +479,8 @@ class FirestoreService extends ChangeNotifier {
 
     // Initialize the user's time entries in the cache
     _usersWithTimeEntriesCache[doc.id] = [];
+    notifyListeners();
+    
   }
 
   // Update the time entries cache

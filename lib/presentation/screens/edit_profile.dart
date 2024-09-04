@@ -31,7 +31,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (widget.userId != null) {
       final firebaseService =
           Provider.of<FirestoreService>(context, listen: false);
-      _employee = await firebaseService.getEmployee(widget.userId);
+
+      // Access the cached data
+      final cachedEmployees =
+          firebaseService.usersWithTimeEntriesCache['allUsers'];
+
+      // Find the employee with the matching userId
+      _employee = cachedEmployees?.firstWhere(
+        (employee) => employee.uid == widget.userId,
+      );
 
       // Update text controllers after fetching data
       if (_employee != null) {
@@ -39,7 +47,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _lastNameController.text = _employee!.lastName ?? '';
         _phoneNumberController.text = _employee!.phoneNumber ?? '';
       }
-      setState(() {}); // Rebuild the widget after fetching data
     }
   }
 
@@ -132,6 +139,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         if (_employee != null) {
                           firebaseService.updateUser(
                             _employee!.uid, // Pass the userId received
+                            true,
                             _firstNameController.text,
                             _lastNameController.text,
                             _phoneNumberController.text,

@@ -325,6 +325,21 @@ class FirestoreService extends ChangeNotifier {
     }
   }
 
+  // In FirestoreService class
+  Stream<List<Employee>> get usersWithTimeEntriesStream {
+    // Call fetchUsersWithTimeEntries to populate the cache initially
+    fetchUsersWithTimeEntries(); 
+    return _db.collection('users').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        // Construct Employee objects from Firestore documents
+        Employee employee = Employee.fromJson(doc.data() as Map<String, dynamic>);
+        employee.uid = doc.id; // Set the employee ID
+        return employee;
+      }).toList();
+    });
+  }
+  
+
   Future<List<Employee>> fetchUsersWithTimeEntries() async {
     // Check if the data is already in the cache
     if (_usersWithTimeEntriesCache.containsKey('allUsers')) {

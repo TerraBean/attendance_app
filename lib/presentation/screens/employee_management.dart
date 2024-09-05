@@ -21,6 +21,8 @@ class _EmployeeManagementState extends State<EmployeeManagement> {
 
   @override
   Widget build(BuildContext context) {
+    final firebaseService = Provider.of<FirestoreService>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Staff'),
@@ -50,62 +52,61 @@ class _EmployeeManagementState extends State<EmployeeManagement> {
               ),
               onChanged: (query) {
                 setState(() {
-                  searchQuery =
-                      query.toLowerCase(); // Update search query
+                  searchQuery = query.toLowerCase();
                 });
               },
             ),
             SizedBox(height: 16.0),
             Expanded(
-              child: Consumer<FirestoreService>(
-                builder: (context, firebaseService, child) {
-                  Map<String, List<Employee>> usersData =
-                      firebaseService.usersWithTimeEntriesCache;
-
-                  if (usersData.isEmpty) {
+              child: StreamBuilder<List<Employee>>(
+                stream: firebaseService.usersWithTimeEntriesStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No employees found.'));
+                  } else {
+                    List<Employee> filteredEmployees = snapshot.data!
+                        .where((employee) {
+                          final fullName =
+                              '${employee.firstName} ${employee.lastName}'
+                                  .toLowerCase();
+                          return fullName.contains(searchQuery);
+                        })
+                        .toList();
+
+                    return ListView.builder(
+                      itemCount: filteredEmployees.length,
+                      itemBuilder: (context, index) {
+                        Employee employee = filteredEmployees[index];
+                        return EmployeeCard(
+                          name: '${employee.firstName} ${employee.lastName}',
+                          email: employee.email ?? 'N/A',
+                          onEdit: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfilePage(
+                                  userId: employee.uid,
+                                ),
+                              ),
+                            );
+                          },
+                          onCall: () {
+                            // Implement call functionality
+                          },
+                          onDelete: () {
+                            // Implement delete functionality
+                          },
+                        );
+                      },
+                    );
                   }
-
-                  List<Employee> employees = usersData['allUsers'] ?? [];
-
-                  // Filter employees based on search query
-                  List<Employee> filteredEmployees =
-                      employees.where((employee) {
-                    final fullName =
-                        '${employee.firstName} ${employee.lastName}'
-                            .toLowerCase();
-                    return fullName.contains(searchQuery);
-                  }).toList();
-
-                  return ListView.builder(
-                    itemCount: filteredEmployees.length,
-                    itemBuilder: (context, index) {
-                      Employee employee = filteredEmployees[index];
-                      return EmployeeCard(
-                        name: '${employee.firstName} ${employee.lastName}',
-                        email: employee.email ?? 'N/A',
-                        onEdit: () async {
-                          // call getemployee function from firebaseservice and pass it employee uid
-      
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EditProfilePage(userId: employee.uid,)),
-                          );
-                        },
-                        onCall: () {
-                          // Implement call functionality
-                        },
-                        onDelete: () {
-                          // Implement delete functionality
-                        },
-                      );
-                    },
-                  );
                 },
               ),
             ),
-            
           ],
         ),
       ),
